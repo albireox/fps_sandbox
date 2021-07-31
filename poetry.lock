@@ -65,7 +65,7 @@ test = ["coverage", "flake8", "pexpect", "wheel"]
 
 [[package]]
 name = "astropy"
-version = "4.2.1"
+version = "4.3.post1"
 description = "Astronomy and astrophysics core library"
 category = "main"
 optional = false
@@ -73,12 +73,12 @@ python-versions = ">=3.7"
 
 [package.dependencies]
 numpy = ">=1.17"
-pyerfa = "*"
+pyerfa = ">=1.7.3"
 
 [package.extras]
-all = ["scipy (>=1.1)", "dask", "h5py", "beautifulsoup4", "html5lib", "bleach", "PyYAML (>=3.13)", "pandas", "sortedcontainers", "pytz", "jplephem", "matplotlib (>=3.0)", "mpmath", "asdf (>=2.6)", "bottleneck", "ipython", "pytest"]
-docs = ["sphinx", "sphinx-astropy (>=1.3)", "pytest", "PyYAML (>=3.13)", "scipy (>=1.1)", "matplotlib (>=3.1)"]
-test = ["pytest-astropy (>=0.8)", "pytest-xdist", "objgraph", "ipython", "coverage", "skyfield (>=1.20)", "sgp4 (>=2.3)"]
+all = ["scipy (>=1.1)", "certifi", "dask", "h5py", "beautifulsoup4", "html5lib", "bleach", "PyYAML (>=3.13)", "pandas", "sortedcontainers", "pytz", "jplephem", "matplotlib (>=3.0,!=3.4.0)", "mpmath", "asdf (>=2.6)", "bottleneck", "ipython (>=4.2)", "pytest"]
+docs = ["sphinx (<4)", "sphinx-astropy (>=1.3)", "pytest", "PyYAML (>=3.13)", "scipy (>=1.1)", "matplotlib (>=3.1,!=3.4.0)", "sphinx-changelog (>=1.1.0)", "packaging"]
+test = ["pytest-astropy (>=0.8)", "pytest-xdist", "objgraph", "ipython (>=4.2)", "coverage", "skyfield (>=1.20)", "sgp4 (>=2.3)", "packaging"]
 
 [[package]]
 name = "atomicwrites"
@@ -355,7 +355,7 @@ pyflakes = ">=2.3.0,<2.4.0"
 
 [[package]]
 name = "furo"
-version = "2021.7.5b38"
+version = "2021.7.28b40"
 description = "A clean customisable Sphinx documentation theme."
 category = "dev"
 optional = false
@@ -456,7 +456,7 @@ python-versions = "*"
 
 [[package]]
 name = "isort"
-version = "5.9.2"
+version = "5.9.3"
 description = "A Python utility / library to sort Python imports."
 category = "dev"
 optional = false
@@ -470,20 +470,25 @@ plugins = ["setuptools"]
 
 [[package]]
 name = "jaeger"
-version = "0.9.0"
+version = "0.9.1-alpha.0"
 description = "Controllers for the SDSS-V FPS"
 category = "main"
 optional = false
-python-versions = ">=3.7,<4.0"
+python-versions = "^3.7"
+develop = true
 
 [package.dependencies]
-click_default_group = ">=1.2.2,<2.0.0"
-daemonocle = ">=1.0.2,<2.0.0"
-numpy = ">=1.15.1,<2.0.0"
-progressbar2 = ">=3.39.3,<4.0.0"
-sdss-clu = ">=1.0.0,<2.0.0"
-sdss-drift = ">=0.2.3,<0.3.0"
+click_default_group = "^1.2.2"
+daemonocle = "^1.0.2"
+numpy = "^1.15.1"
+progressbar2 = "^3.39.3"
+sdss-clu = "^1.0.0"
+sdss-drift = "^0.2.3"
 sdsstools = ">=0.4.2"
+
+[package.source]
+type = "directory"
+url = "../jaeger"
 
 [[package]]
 name = "jedi"
@@ -796,7 +801,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "platformdirs"
-version = "2.1.0"
+version = "2.2.0"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 category = "dev"
 optional = false
@@ -1160,7 +1165,7 @@ sdsstools = ">=0.2.0"
 
 [[package]]
 name = "sdss-drift"
-version = "0.2.3"
+version = "0.2.4"
 description = "Modbus PLC control library"
 category = "main"
 optional = false
@@ -1220,7 +1225,7 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "sphinx"
-version = "4.1.1"
+version = "4.1.2"
 description = "Python documentation generator"
 category = "dev"
 optional = false
@@ -1489,7 +1494,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "f3df759859184a08ce6514849e30eb75ef587ee07bc6986f1b35d3c1436e8609"
+content-hash = "b59dcb71aa409e48c454ba95f57dbd00f0b9cc70a9144b8edec309779022baf7"
 
 [metadata.files]
 aio-pika = [
@@ -1517,22 +1522,22 @@ argcomplete = [
     {file = "argcomplete-1.12.3.tar.gz", hash = "sha256:2c7dbffd8c045ea534921e63b0be6fe65e88599990d8dc408ac8c542b72a5445"},
 ]
 astropy = [
-    {file = "astropy-4.2.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:db694c10eb3cc10068859ba1eab30b38b7e821dbfff142960c5a99c4af059747"},
-    {file = "astropy-4.2.1-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:2ff194e15b03afd575f278e2187b71d7ee9d85f302356050b2257b6c4788f1cc"},
-    {file = "astropy-4.2.1-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:12c76c119f7a0a8fcf0e72269be9faa88319f12e4ba346180d910e58fda36bf2"},
-    {file = "astropy-4.2.1-cp37-cp37m-win32.whl", hash = "sha256:6d8c8bc1eef048ad873395d2a620b9b5f308bef9a508f542e6dc3b33fbfbe66d"},
-    {file = "astropy-4.2.1-cp37-cp37m-win_amd64.whl", hash = "sha256:3d5516ba20e6cbc208250dd8f414243839cc40e957616e3f336a517967ee34d0"},
-    {file = "astropy-4.2.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:c327cfdede8d5fce1224153b8d3a060226161ddc2e1b2170f076aaddb4953965"},
-    {file = "astropy-4.2.1-cp38-cp38-manylinux1_i686.whl", hash = "sha256:03428ca1baa4fba99e37d3767c12c038c456a27176bcb8f407f9b2b0743ef8ee"},
-    {file = "astropy-4.2.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:a6164013de3732a67a5a1a2743565f5aaef0d895ce33d5aef482d88b05318893"},
-    {file = "astropy-4.2.1-cp38-cp38-win32.whl", hash = "sha256:a1f707283822c2f7df97d9de151c29d49ed9cc0bf3ae952f91012d7a4c5872a7"},
-    {file = "astropy-4.2.1-cp38-cp38-win_amd64.whl", hash = "sha256:2035ca521d86c88ea6d8da07f977a9727f0d7d8f85b5c287558c1891f885e548"},
-    {file = "astropy-4.2.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:5be2f01d1b35202c0989f4502d25fe850ae5e891acbd3be107eaf6eeab81826d"},
-    {file = "astropy-4.2.1-cp39-cp39-manylinux1_i686.whl", hash = "sha256:009a26f795adad1f0b26ba3a434e5be9cfa82cb629ba87c0547b567bad6e1695"},
-    {file = "astropy-4.2.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:2d4d328892c7b09a23361f44182cf89be3dadaec60a270bd4fe754f3829052a4"},
-    {file = "astropy-4.2.1-cp39-cp39-win32.whl", hash = "sha256:09965d5e8ffd7e96e7fcc596b631f366cf729df75efb792918cb6637acf1ad4e"},
-    {file = "astropy-4.2.1-cp39-cp39-win_amd64.whl", hash = "sha256:223610cc612aaddac890fefd9e20dc6a39c92ef01692354e2bcb273c79fb8842"},
-    {file = "astropy-4.2.1.tar.gz", hash = "sha256:ed483e472241153daec45f4b0c318c2c63d9f47305b78e6e63d32fc388c18427"},
+    {file = "astropy-4.3.post1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:460e07cb72789976421689833556a0a364dba89e25fe9183e669702dbcbf72c2"},
+    {file = "astropy-4.3.post1-cp37-cp37m-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:8062ece72d6fe6f4349219c9e2e0f213847de4f7f3bc3796ce7949bc1a202bf9"},
+    {file = "astropy-4.3.post1-cp37-cp37m-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:8d70811b68f702d7b2e21fc0d644f88baf977482b1f915011460cc1b7fa285ea"},
+    {file = "astropy-4.3.post1-cp37-cp37m-win32.whl", hash = "sha256:1d879b91bbd61d69682c72b773d9c8851eff23e51cf1fb86b32dc80e783be643"},
+    {file = "astropy-4.3.post1-cp37-cp37m-win_amd64.whl", hash = "sha256:52c1038bad27e7ae1154eda0447ba790f13cb9bcb98e04c60493c2e547a87e6c"},
+    {file = "astropy-4.3.post1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:a420917baf9e02252e3477da265675167a324716f8a09e78607577b5bd27a159"},
+    {file = "astropy-4.3.post1-cp38-cp38-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:ffe13ed14298e819f2be5224aa649c44f8ddc9fcf32b5d4296fc62624ae867cd"},
+    {file = "astropy-4.3.post1-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:607739958f8fcc37d4f2efdb8b9bbcc3bf063c880e2d83104cf72a81c3e89b91"},
+    {file = "astropy-4.3.post1-cp38-cp38-win32.whl", hash = "sha256:e2670fc08868cd8d0d1e653dcfcf224b506235b30434742538702f74c6859d24"},
+    {file = "astropy-4.3.post1-cp38-cp38-win_amd64.whl", hash = "sha256:e95ddb6fb0850fe28690e498fe8d2c3cee72d54c098083a2fe0e01b7b3895771"},
+    {file = "astropy-4.3.post1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:a1b57aa21fdc8526dbca96b69cdcaba83066d7688ff52b87b7cdf5362e75f112"},
+    {file = "astropy-4.3.post1-cp39-cp39-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:be62ba888f0dd82a7265698a602e64ca2466f1f17bd6c4ef085a055c5968e458"},
+    {file = "astropy-4.3.post1-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:dc8acf92a20c9c916f25b17dbb0f618f91751941ec36f240452871e72fb608ca"},
+    {file = "astropy-4.3.post1-cp39-cp39-win32.whl", hash = "sha256:6779cc4c840128d12a6721d6fc835c826646967b019daaeacc6e71ed79850973"},
+    {file = "astropy-4.3.post1-cp39-cp39-win_amd64.whl", hash = "sha256:6ac307416a8718e4f4ed42f42c14587754fe6df38d822533c6d795db64a29453"},
+    {file = "astropy-4.3.post1.tar.gz", hash = "sha256:1b9f976f32675ae715bd38fcfb3540fcf01f6be1d75266c39b6fb085adac9410"},
 ]
 atomicwrites = [
     {file = "atomicwrites-1.4.0-py2.py3-none-any.whl", hash = "sha256:6d1784dea7c0c8d4a5172b6c620f40b6e4cbfdf96d783691f2e1302a7b88e197"},
@@ -1681,8 +1686,8 @@ flake8 = [
     {file = "flake8-3.9.2.tar.gz", hash = "sha256:07528381786f2a6237b061f6e96610a4167b226cb926e2aa2b6b1d78057c576b"},
 ]
 furo = [
-    {file = "furo-2021.7.5b38-py3-none-any.whl", hash = "sha256:81316a9d498f77dd82b4c4a378a33561e5f762372a716cad91150b4b90da7b35"},
-    {file = "furo-2021.7.5b38.tar.gz", hash = "sha256:e1d98a9c447aef2567b49ef685b963b4f809b9f436993c3dcd4a817547525a49"},
+    {file = "furo-2021.7.28b40-py3-none-any.whl", hash = "sha256:297be93a9b425a9e24defe8784fe3009c19557516936a748ee0300b413b30ee2"},
+    {file = "furo-2021.7.28b40.tar.gz", hash = "sha256:e5cadea37bb87c22a62f697643d61b5702faa474273fbd25bdf4c94296ebae17"},
 ]
 idna = [
     {file = "idna-3.2-py3-none-any.whl", hash = "sha256:14475042e284991034cb48e06f6851428fb14c4dc953acd9be9a5e95c7b6dd7a"},
@@ -1713,13 +1718,10 @@ ipython-genutils = [
     {file = "ipython_genutils-0.2.0.tar.gz", hash = "sha256:eb2e116e75ecef9d4d228fdc66af54269afa26ab4463042e33785b887c628ba8"},
 ]
 isort = [
-    {file = "isort-5.9.2-py3-none-any.whl", hash = "sha256:eed17b53c3e7912425579853d078a0832820f023191561fcee9d7cae424e0813"},
-    {file = "isort-5.9.2.tar.gz", hash = "sha256:f65ce5bd4cbc6abdfbe29afc2f0245538ab358c14590912df638033f157d555e"},
+    {file = "isort-5.9.3-py3-none-any.whl", hash = "sha256:e17d6e2b81095c9db0a03a8025a957f334d6ea30b26f9ec70805411e5c7c81f2"},
+    {file = "isort-5.9.3.tar.gz", hash = "sha256:9c2ea1e62d871267b78307fe511c0838ba0da28698c5732d54e2790bf3ba9899"},
 ]
-jaeger = [
-    {file = "jaeger-0.9.0-py3-none-any.whl", hash = "sha256:ed7c7e903c4f5507a21618db84e557c93d22002e71882c9be657c85a773eac89"},
-    {file = "jaeger-0.9.0.tar.gz", hash = "sha256:843a361be9b968d1e33f15431ceb66f1e325d3b3c1c1ca01aade89a8f4ea8068"},
-]
+jaeger = []
 jedi = [
     {file = "jedi-0.18.0-py2.py3-none-any.whl", hash = "sha256:18456d83f65f400ab0c2d3319e48520420ef43b23a086fdc05dff34132f0fb93"},
     {file = "jedi-0.18.0.tar.gz", hash = "sha256:92550a404bad8afed881a137ec9a461fed49eca661414be45059329614ed0707"},
@@ -2018,8 +2020,8 @@ pillow = [
     {file = "Pillow-8.3.1.tar.gz", hash = "sha256:2cac53839bfc5cece8fdbe7f084d5e3ee61e1303cccc86511d351adcb9e2c792"},
 ]
 platformdirs = [
-    {file = "platformdirs-2.1.0-py3-none-any.whl", hash = "sha256:b2b30ae52404f93e2024e85bba29329b85715d6b2f18ffe90ecd25a5c67553df"},
-    {file = "platformdirs-2.1.0.tar.gz", hash = "sha256:1964be5aba107a7ccb7de0e6f1f1bfde0dee51641f0e733028121f8e02e2e16b"},
+    {file = "platformdirs-2.2.0-py3-none-any.whl", hash = "sha256:4666d822218db6a262bdfdc9c39d21f23b4cfdb08af331a81e92751daf6c866c"},
+    {file = "platformdirs-2.2.0.tar.gz", hash = "sha256:632daad3ab546bd8e6af0537d09805cec458dce201bccfe23012df73332e181e"},
 ]
 pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
@@ -2269,8 +2271,8 @@ sdss-clu = [
     {file = "sdss_clu-1.2.1-py3-none-any.whl", hash = "sha256:c37395e1f1a4992ea54b56b6fe420a0fc05cdb0a20630bafcece815b133ffce1"},
 ]
 sdss-drift = [
-    {file = "sdss-drift-0.2.3.tar.gz", hash = "sha256:0a760f4e7504cea5a4358156698280b58fcb25c6d45046c7aa662e7df44523cd"},
-    {file = "sdss_drift-0.2.3-py3-none-any.whl", hash = "sha256:fb9c3f195ec7fe32ecffe039a7a9afc9e192d2ff7403a34d2e501bfdf2573ab7"},
+    {file = "sdss-drift-0.2.4.tar.gz", hash = "sha256:a4cc1553c96e69dfbf0e25070ba5a201789d93cbe1bdc6f3ef61d2f75bce2070"},
+    {file = "sdss_drift-0.2.4-py3-none-any.whl", hash = "sha256:a10e1392faf311345d928037871e8e2fc8f17ebf70145d17d75a1cd6c06ac27c"},
 ]
 sdsstools = [
     {file = "sdsstools-0.4.3-py3-none-any.whl", hash = "sha256:1747edaf3834fd0b5c708d8122e3348f2eb49166cda8540143b4804930c0b3d5"},
@@ -2293,8 +2295,8 @@ soupsieve = [
     {file = "soupsieve-2.2.1.tar.gz", hash = "sha256:052774848f448cf19c7e959adf5566904d525f33a3f8b6ba6f6f8f26ec7de0cc"},
 ]
 sphinx = [
-    {file = "Sphinx-4.1.1-py3-none-any.whl", hash = "sha256:3d513088236eef51e5b0adb78b0492eb22cc3b8ccdb0b36dd021173b365d4454"},
-    {file = "Sphinx-4.1.1.tar.gz", hash = "sha256:23c846a1841af998cb736218539bb86d16f5eb95f5760b1966abcd2d584e62b8"},
+    {file = "Sphinx-4.1.2-py3-none-any.whl", hash = "sha256:46d52c6cee13fec44744b8c01ed692c18a640f6910a725cbb938bc36e8d64544"},
+    {file = "Sphinx-4.1.2.tar.gz", hash = "sha256:3092d929cd807926d846018f2ace47ba2f3b671b309c7a89cd3306e80c826b13"},
 ]
 sphinx-autobuild = [
     {file = "sphinx-autobuild-2021.3.14.tar.gz", hash = "sha256:de1ca3b66e271d2b5b5140c35034c89e47f263f2cd5db302c9217065f7443f05"},
