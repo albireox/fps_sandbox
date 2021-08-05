@@ -25,7 +25,7 @@ async def main():
             alpha = 360
             beta = 180
 
-        await asyncio.gather(*[p.goto(alpha, beta) for p in fps.values()])
+        await asyncio.gather(*[fps[p].goto(alpha, beta) for p in [775]])
 
         await asyncio.sleep(1)
 
