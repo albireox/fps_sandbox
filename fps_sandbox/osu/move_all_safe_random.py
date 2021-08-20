@@ -23,25 +23,50 @@ async def main():
     min_beta = 165
     max_beta = 195
 
+    ii = 1
     while True:
 
         positioners = list(fps.keys())
 
-        bad = [1255, 717, 1367, 398, 775, 738, 1003, 981, 545, 688, 474, 769, 652, 703]
+        bad = [
+            1255,
+            768,
+            794,
+            267,
+            732,
+            500,
+            537,
+            717,
+            1367,
+            398,
+            775,
+            738,
+            1003,
+            981,
+            545,
+            688,
+            474,
+            769,
+            652,
+            703,
+            878,
+        ]
         for pbad in bad:
             if pbad in positioners:
                 positioners.remove(pbad)
 
-        # await fps.stop_trajectory()
+        await fps.stop_trajectory()
 
         alpha = numpy.random.random(len(positioners)) * 360
         beta = numpy.random.random(len(positioners)) * (max_beta - min_beta) + min_beta
+
+        print(f"Trajectory {ii}")
 
         await fps.goto(
             positioners,
             alpha,
             beta,
-            speed=[2000, 2000],
+            speed=(2000, 2000),
             force=True,
             use_sync_line=False,
         )
@@ -52,12 +77,14 @@ async def main():
             positioners,
             0,
             180,
-            speed=[2000, 2000],
+            speed=(2000, 2000),
             force=True,
             use_sync_line=False,
         )
 
         await asyncio.sleep(1)
+
+        ii += 1
 
 
 asyncio.run(main())
