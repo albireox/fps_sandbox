@@ -29,28 +29,10 @@ async def main():
         positioners = list(fps.keys())
 
         bad = [
-            1255,
-            768,
-            794,
-            267,
-            732,
-            500,
-            537,
-            717,
-            1367,
-            398,
-            775,
-            738,
-            1003,
-            981,
-            545,
-            688,
-            474,
-            769,
-            652,
-            703,
-            878,
+            683,
+            239
         ]
+         
         for pbad in bad:
             if pbad in positioners:
                 positioners.remove(pbad)
