@@ -28,10 +28,7 @@ async def main():
 
         positioners = list(fps.keys())
 
-        bad = [
-            683,
-            239
-        ]
+        bad = []
          
         for pbad in bad:
             if pbad in positioners:
