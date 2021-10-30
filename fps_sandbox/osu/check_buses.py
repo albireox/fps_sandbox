@@ -50,7 +50,7 @@ if __name__ == "__main__":
     else:
         data_file = os.path.join(
             os.path.dirname(__file__),
-            "../data/SloanFPS_HexArray_2021July23.csv",
+            "../data/SloanFPS_Assignments_2021Oct22.csv",
         )
 
     asyncio.run(check_buses(prepare_layout_data(data_file)))

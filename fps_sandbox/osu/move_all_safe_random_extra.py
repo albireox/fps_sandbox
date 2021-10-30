@@ -67,9 +67,6 @@ async def main():
 
         try:
 
-            if n_traj == 2:
-                raise ValueError('hi!')
-
             await fps.goto(
                 positioners,
                 alpha,

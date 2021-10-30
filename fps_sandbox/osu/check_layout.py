@@ -41,6 +41,7 @@ def prepare_layout_data(data_file):
 async def check_layout(data_file):
 
     data = prepare_layout_data(data_file)
+    print(data)
 
     print(f"{len(data)} positioners identified in layout file.")
 
@@ -53,8 +54,19 @@ async def check_layout(data_file):
             "Mismatch with number of expected positioners."
         )
 
+    for pid in fps.positioners:
+        if pid not in data.Device:
+            print(f'Positioner {pid} is connected but not on the layout.')
+
+    for pid in data.Device:
+        if pid not in fps.positioners:
+            p = data.loc[pid]
+            row = p.Row
+            col = p.Column
+            print(f'Positioner {pid} (R{row}C{col}) is in the layout but not connected.')
+
     # alpha = numpy.array([p.alpha for p in fps.values()])
-    beta = numpy.array([p.beta for p in fps.values()])
+    # beta = numpy.array([p.beta for p in fps.values()])
 
     # numpy.testing.assert_allclose(
     #     alpha,
@@ -62,19 +74,19 @@ async def check_layout(data_file):
     #     atol=1,
     #     err_msg="Alpha should be 0 for all positioners",
     # )
-    numpy.testing.assert_allclose(
-        beta,
-        180,
-        atol=1,
-        err_msg="Beta should be 180 for all positioners",
-    )
+    # numpy.testing.assert_allclose(
+    #     beta,
+    #     180,
+    #     atol=1,
+    #     err_msg="Beta should be 180 for all positioners",
+    # )
 
-    for pid, pid_data in data.iterrows():
-        if pid_data.Row > -12:
-            continue
-        print(f"Rotating P{pid} (R{pid_data.Row}, C{pid_data.Column})")
-        await fps[pid].goto(90, 180)
-        await asyncio.sleep(0.5)
+    # for pid, pid_data in data.iterrows():
+    #     if pid_data.Row > -12:
+    #         continue
+    #     print(f"Rotating P{pid} (R{pid_data.Row}, C{pid_data.Column})")
+    #     await fps[pid].goto(90, 180)
+    #     await asyncio.sleep(0.5)
 
 
 if __name__ == "__main__":
@@ -84,7 +96,7 @@ if __name__ == "__main__":
     else:
         data_file = os.path.join(
             os.path.dirname(__file__),
-            "../data/SloanFPS_HexArray_2021July23.csv",
+            "../data/SloanFPS_Assignments_2021Oct22.csv",
         )
 
     asyncio.run(check_layout(data_file))
