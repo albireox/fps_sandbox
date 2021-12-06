@@ -6,12 +6,12 @@ authors = ["José Sánchez-Gallego <gallegoj@uw.edu>"]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
-pyds9 = "^1.8.1"
 astropy = "^4.2.1"
 pandas = "^1.3.1"
 numpy = "^1.21.1"
 jaeger = {path="../jaeger", develop=true}
 tables = "^3.6.1"
+sep = "^1.2.0"
 
 [tool.poetry.dev-dependencies]
 ipython = "*"
