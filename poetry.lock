@@ -1094,7 +1094,7 @@ documents = ["sphinx (>=1.1.3)", "sphinx-rtd-theme", "humanfriendly"]
 quality = ["coverage (>=3.5.3)", "nose (>=1.2.1)", "mock (>=1.0.0)", "pep8 (>=1.3.3)"]
 repl = ["click (>=7.0)", "prompt-toolkit (==2.0.4)", "pygments (>=2.2.0)", "click (>=7.0)", "prompt-toolkit (>=3.0.8)", "pygments (>=2.2.0)", "aiohttp (>=3.7.3)", "pyserial-asyncio (>=0.5)"]
 tornado = ["tornado (==4.5.3)"]
-twisted = ["Twisted[serial,conch] (>=20.3.0)", "Twisted[conch] (>=20.3.0)"]
+twisted = ["Twisted[conch,serial] (>=20.3.0)", "Twisted[conch] (>=20.3.0)"]
 
 [[package]]
 name = "pyparsing"
@@ -1339,8 +1339,29 @@ python-versions = ">=3.7"
 numpy = ">=1.16.5"
 
 [[package]]
+name = "sdss-cherno"
+version = "0.1.0-alpha.0"
+description = "SDSS guider actor"
+category = "main"
+optional = false
+python-versions = "^3.8"
+develop = true
+
+[package.dependencies]
+astropy = "^4.0.1"
+click-default-group = "^1.2.2"
+numpy = "^1.19.2"
+sdss-clu = "^1.0.0"
+sdssdb = "^0.4.3"
+sdsstools = ">=0.1.0"
+
+[package.source]
+type = "directory"
+url = "../cherno"
+
+[[package]]
 name = "sdss-clu"
-version = "1.5.5a0"
+version = "1.5.4"
 description = "A new protocol for SDSS actors."
 category = "main"
 optional = false
@@ -1877,7 +1898,7 @@ test = ["zope.testing"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "f34e498ec9089b7a963cad90f3f3a9a2cc7c2758cb6e73952e759b346da49adf"
+content-hash = "5f8941c825c80c4e2b40aae13bee96f993604887722baca6af20ae68491aa9f1"
 
 [metadata.files]
 aio-pika = [
@@ -2946,9 +2967,10 @@ scipy = [
     {file = "scipy-1.6.1-cp39-cp39-win_amd64.whl", hash = "sha256:a5193a098ae9f29af283dcf0041f762601faf2e595c0db1da929875b7570353f"},
     {file = "scipy-1.6.1.tar.gz", hash = "sha256:c4fceb864890b6168e79b0e714c585dbe2fd4222768ee90bc1aa0f8218691b11"},
 ]
+sdss-cherno = []
 sdss-clu = [
-    {file = "sdss-clu-1.5.5a0.tar.gz", hash = "sha256:94f5723e2ec2f143ceba0c7ad68108ccad38530217d0f71a0be7b2312662da57"},
-    {file = "sdss_clu-1.5.5a0-py3-none-any.whl", hash = "sha256:70a9b2fa79f7678d8398e76c44ff99c629b15c2851710e940bf384ad3f8ffdb3"},
+    {file = "sdss-clu-1.5.4.tar.gz", hash = "sha256:8bb657ebc0491e87aa2a65a19c2b8a7732722c6717fd86a9c7fbbebd2f985103"},
+    {file = "sdss_clu-1.5.4-py3-none-any.whl", hash = "sha256:7dceeeb43357a6aeb1385995a5956d3e7f7f85e3f958bd4f44a0f6e41bbc6de2"},
 ]
 sdss-coordio = [
     {file = "sdss-coordio-1.1.4a1.tar.gz", hash = "sha256:ee88ea5bd57f9eb2d9fc11051c54ad8d8a649b0868c2d52089b633ff9fbab22d"},
