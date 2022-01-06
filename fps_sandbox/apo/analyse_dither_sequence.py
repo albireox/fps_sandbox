@@ -176,12 +176,13 @@ def create_dataframe(start_mjd: int = 59564):
     """Creates a dataframe with all dither sequences."""
 
     sdsscore_dir = pathlib.Path(os.environ["SDSSCORE_DIR"])
-    summary_files = sorted(sdsscore_dir.glob("apo/**/confSummary*"))
+    summaryF_files = sorted(sdsscore_dir.glob("apo/**/confSummaryF*"))
+    summary_files = sorted(sdsscore_dir.glob("apo/**/confSummary-*"))
 
     parents = {}
     dithers = []
 
-    for summary_file in tqdm(summary_files):
+    for summary_file in tqdm(summaryF_files + summary_files):
         summary = yanny(str(summary_file))
 
         if "MJD" in summary and float(summary["MJD"]) < start_mjd:
@@ -390,7 +391,13 @@ def plot_wok_radec(
         plt.close("all")
 
 
-def plot_focal_plane(filename, xy_range=None, mjd_range=None, gridsize=25):
+def plot_focal_plane(
+    filename,
+    xy_range=None,
+    mjd_range=None,
+    gridsize=25,
+    use_cat=False,
+):
     """Plots dither wok spread vs RA/Dec."""
 
     data = pandas.read_hdf(os.path.join(DIRNAME, "../results/dither_data.h5"))
@@ -433,11 +440,13 @@ def plot_focal_plane(filename, xy_range=None, mjd_range=None, gridsize=25):
 
         dftype = dftype.loc[(dftype.racat > 0) & (dftype.ra > 0)]
 
-        ra_diff = (dftype.ra - dftype.ra_parent) * numpy.cos(
-            numpy.deg2rad(dftype.deccen)
-        )
-        dec_diff = dftype.dec - dftype.dec_parent
-
+        cos = numpy.cos(numpy.deg2rad(dftype.deccen))
+        if use_cat is False:
+            ra_diff = (dftype.ra - dftype.ra_parent) * cos
+            dec_diff = dftype.dec - dftype.dec_parent
+        else:
+            ra_diff = (dftype.ra - dftype.racat) * cos
+            dec_diff = dftype.dec - dftype.deccat
         dftype.loc[:, "delta_racat"] = ra_diff * 3600.0
         dftype.loc[:, "delta_deccat"] = dec_diff * 3600.0
 
@@ -533,4 +542,12 @@ if __name__ == "__main__":
     #     filename="dithers/dithers_59575-59579_zoom025_cat.png",
     # )
 
-    plot_focal_plane("dithers/dithers_59575-59579_focal.pdf", mjd_range=[59575, 59579])
+    plot_focal_plane(
+        "dithers/dithers_59575-59579_focal.pdf",
+        mjd_range=[59575, 59579],
+    )
+    plot_focal_plane(
+        "dithers/dithers_59575-59579_focal_cat.pdf",
+        mjd_range=[59575, 59579],
+        use_cat=True,
+    )
