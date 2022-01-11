@@ -10,13 +10,46 @@ from __future__ import annotations
 
 import pathlib
 
+import pandas
+import tqdm
+from astropy.io.fits import getheader
+
+
+RESULTS = pathlib.Path(__file__).parent / "../results"
+
 
 def compile_guider_data():
 
-    proc_files = pathlib.Path("/data/gcam/595[6-9][0-9]/").glob("proc-*.fits")
+    proc_files = pathlib.Path("/data/gcam/").glob("595[6-9][0-9]/proc-*.fits")
 
-    for proc_file in proc_files:
-        print(proc_file)
+    data = {}
+    for proc_file in tqdm.tqdm(list(proc_files)):
+        mjd = int(str(proc_file.parts[-2]))
+        frame = int(str(proc_file).split("-")[-1].split(".")[0])
+        header = getheader(proc_file, 1)
+        cam = int(header["CAMNAME"][3])
+
+        data[(mjd, frame, cam)] = {k.lower(): v for k, v in dict(header).items()}
+
+    df = pandas.DataFrame.from_dict(data, orient="index")
+    df.index.set_names(["mjd", "frame", "camera"], inplace=True)
+
+    # for col, dtype in df.dtypes.items():
+    #     if dtype == object:
+    #         df.loc[:, col] = df[col].str.decode("utf-8")
+
+    fcols = df.select_dtypes("float").columns
+    icols = df.select_dtypes("integer").columns
+
+    df[fcols] = df[fcols].apply(pandas.to_numeric, downcast="float")
+    df[icols] = df[icols].apply(pandas.to_numeric, downcast="integer")
+
+    df.sort_index(inplace=True)
+
+    outfile = RESULTS / "guider.hdf"
+    outfile.unlink(missing_ok=True)
+
+    df.to_hdf(outfile, "data", complevel=9)
 
 
 if __name__ == "__main__":
