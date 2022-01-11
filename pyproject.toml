@@ -13,7 +13,7 @@ jaeger = {path="../jaeger", develop=true}
 sdss-cherno = {path="../cherno", develop=true}
 tables = "^3.6.1"
 sep = "^1.2.0"
-matplotlib = "^3.5.1"
+matplotlib = {version=">3.5", allow-prereleases=true}
 seaborn = "^0.11.2"
 tqdm = "^4.62.3"
 

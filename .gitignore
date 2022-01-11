@@ -106,3 +106,5 @@ setup.py
 .nox/
 
 fps_sandbox/results
+
+pyrightconfig.json

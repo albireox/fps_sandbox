@@ -337,7 +337,91 @@ def plot_cycle():
     )
 
 
+def simulate_radec(racen: float = 20.0, deccen: float = 20.0, wave: str = "Apogee"):
+    """Generate random RA/Dec positions and check the conversion to wok coordinates."""
+
+    deccen_rad = numpy.deg2rad(deccen)
+
+    ra = numpy.random.uniform(-1.5, 1.5, size=10000)
+    dec = numpy.random.uniform(-1.5, 1.5, size=10000)
+
+    valid = numpy.where((ra ** 2 + dec ** 2) < 1.5 ** 2)
+    ra = (racen + ra[valid] / numpy.cos(deccen_rad)) % 360.0
+    dec = deccen + dec[valid]
+
+    xwok, ywok, *_ = radec2wokxy(
+        ra,
+        dec,
+        None,
+        wave,
+        racen,
+        deccen,
+        0.0,
+        "APO",
+        None,
+        pmra=None,
+        pmdec=None,
+        parallax=None,
+    )
+
+    ra_cycle, dec_cycle, *_ = wokxy2radec(
+        xwok,
+        ywok,
+        wave,
+        racen,
+        deccen,
+        0.0,
+        "APO",
+        None,
+    )
+
+    ra_diff = (ra - ra_cycle) * numpy.cos(deccen_rad) * 3600.0
+    dec_diff = (dec - dec_cycle) * 3600.0
+
+    seaborn.set_style("white")
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+    hexra = axes[0].hexbin(
+        xwok,
+        ywok,
+        C=ra_diff,
+        gridsize=30,
+        reduce_C_function=numpy.median,  # type: ignore
+    )
+
+    cmra = plt.colorbar(hexra, ax=axes[0])
+    cmra.set_label(r"$\Delta\alpha\ $[arcsec]")
+
+    axes[0].set_xlim(-350, 350)
+    axes[0].set_xlabel(r"$x_{\rm wok}$")
+    axes[0].set_ylabel(r"$y_{\rm wok}$")
+
+    hexdec = axes[1].hexbin(
+        xwok,
+        ywok,
+        C=dec_diff,
+        gridsize=30,
+        reduce_C_function=numpy.median,  # type: ignore
+    )
+
+    cmdec = plt.colorbar(hexdec, ax=axes[1])
+    cmdec.set_label(r"$\Delta\delta\ $[arcsec]")
+
+    axes[1].set_xlim(-350, 350)
+    axes[1].set_xlabel(r"$x_{\rm wok}$")
+    axes[1].set_ylabel(r"$y_{\rm wok}$")
+
+    fig, ax = plt.subplots()
+
+    ax.quiver(ra, dec, ra_cycle, dec_cycle, units="xy", scale=400, width=0.005)
+
+    plt.show()
+
+
 if __name__ == "__main__":
 
     # create_dataframe()
-    plot_cycle()
+    # plot_cycle()
+
+    simulate_radec()
