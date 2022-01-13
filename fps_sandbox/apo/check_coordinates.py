@@ -25,7 +25,7 @@ from tqdm import tqdm
 from coordio.utils import radec2wokxy, wokxy2radec
 
 
-RESULTS = os.path.join(os.path.dirname(__file__), "../results")
+RESULTS = pathlib.Path(os.path.dirname(__file__)) / "../results"
 SDSSCORE_DIR = pathlib.Path(os.environ["SDSSCORE_DIR"])
 
 
@@ -306,38 +306,38 @@ def plot_cycle():
         & (data.parent_configuration.isna())
     ]
 
-    # data_no_fvc = data.loc[data.isFVC == 0].copy()
-    # ax = radec_radeccat(data_no_fvc)
-    # ax.figure.suptitle("All confSummary (assigned=1, on_target=1)")
-    # ax.figure.savefig(os.path.join(RESULTS, "radec_radeccat.pdf"))
+    data_no_fvc = data.loc[data.isFVC == 0].copy()
+    ax = radec_radeccat(data_no_fvc)
+    ax.figure.suptitle("All confSummary (assigned=1, on_target=1)")
+    ax.figure.savefig(os.path.join(RESULTS, "radec_radeccat.pdf"))
 
-    # data_fvc = data.loc[data.isFVC == 1].copy()
-    # ax = radec_radeccat(data_fvc)
-    # ax.figure.suptitle("All confSummaryF (assigned=1, on_target=1)")
-    # ax.figure.savefig(os.path.join(RESULTS, "radec_radeccat_fvc.pdf"))
+    data_fvc = data.loc[data.isFVC == 1].copy()
+    ax = radec_radeccat(data_fvc)
+    ax.figure.suptitle("All confSummaryF (assigned=1, on_target=1)")
+    ax.figure.savefig(os.path.join(RESULTS, "radec_radeccat_fvc.pdf"))
 
-    # cycle_radec_wok(data_no_fvc)
-    # cycle_radec_wok(data_fvc)
+    cycle_radec_wok(data_no_fvc)
+    cycle_radec_wok(data_fvc)
 
-    data_1446 = data.loc[[1446]]
-    data_1446_no_fvc = data_1446.loc[data_1446.isFVC == 0]
-    ax = radec_radeccat(data_1446_no_fvc)
-    ax.figure.suptitle("Configuration 1446")
-    ax.figure.savefig(os.path.join(RESULTS, "radec_radeccat_1446.pdf"))
-    cycle_radec_wok(data_1446_no_fvc, "cycle_xywok_1446.pdf", "cycle_radec_1446.pdf")
+    # data_1446 = data.loc[[1446]]
+    # data_1446_no_fvc = data_1446.loc[data_1446.isFVC == 0]
+    # ax = radec_radeccat(data_1446_no_fvc)
+    # ax.figure.suptitle("Configuration 1446")
+    # ax.figure.savefig(os.path.join(RESULTS, "radec_radeccat_1446.pdf"))
+    # cycle_radec_wok(data_1446_no_fvc, "cycle_xywok_1446.pdf", "cycle_radec_1446.pdf")
 
-    data_1446_fvc = data_1446.loc[data_1446.isFVC == 1]
-    ax = radec_radeccat(data_1446_fvc)
-    ax.figure.suptitle("Configuration 1446")
-    ax.figure.savefig(os.path.join(RESULTS, "radec_radeccat_1446_fvc.pdf"))
-    cycle_radec_wok(
-        data_1446_fvc,
-        "cycle_xywok_1446_fvc.pdf",
-        "cycle_radec_1446_fvc.pdf",
-    )
+    # data_1446_fvc = data_1446.loc[data_1446.isFVC == 1]
+    # ax = radec_radeccat(data_1446_fvc)
+    # ax.figure.suptitle("Configuration 1446")
+    # ax.figure.savefig(os.path.join(RESULTS, "radec_radeccat_1446_fvc.pdf"))
+    # cycle_radec_wok(
+    #     data_1446_fvc,
+    #     "cycle_xywok_1446_fvc.pdf",
+    #     "cycle_radec_1446_fvc.pdf",
+    # )
 
 
-def simulate_radec(racen: float = 20.0, deccen: float = 20.0, wave: str = "Apogee"):
+def simulate_radec(racen: float = 105.0, deccen: float = 30.0, wave: str = "Apogee"):
     """Generate random RA/Dec positions and check the conversion to wok coordinates."""
 
     deccen_rad = numpy.deg2rad(deccen)
@@ -349,30 +349,31 @@ def simulate_radec(racen: float = 20.0, deccen: float = 20.0, wave: str = "Apoge
     ra = (racen + ra[valid] / numpy.cos(deccen_rad)) % 360.0
     dec = deccen + dec[valid]
 
-    xwok, ywok, *_ = radec2wokxy(
+    xwok, ywok, zwok, *_ = radec2wokxy(
         ra,
         dec,
-        None,
+        2459591.7,
         wave,
         racen,
         deccen,
         0.0,
         "APO",
-        None,
-        pmra=None,
-        pmdec=None,
-        parallax=None,
+        2459591.7,
+        pmra=1,
+        pmdec=1,
+        parallax=1,
     )
 
     ra_cycle, dec_cycle, *_ = wokxy2radec(
         xwok,
         ywok,
+        zwok,
         wave,
         racen,
         deccen,
         0.0,
         "APO",
-        None,
+        2459591.7,
     )
 
     ra_diff = (ra - ra_cycle) * numpy.cos(deccen_rad) * 3600.0
@@ -412,11 +413,115 @@ def simulate_radec(racen: float = 20.0, deccen: float = 20.0, wave: str = "Apoge
     axes[1].set_xlabel(r"$x_{\rm wok}$")
     axes[1].set_ylabel(r"$y_{\rm wok}$")
 
-    fig, ax = plt.subplots()
+    fig.savefig(RESULTS / "radec_wok_simulated.pdf")
 
-    ax.quiver(ra, dec, ra_cycle, dec_cycle, units="xy", scale=400, width=0.005)
+    # fig, ax = plt.subplots()
 
-    plt.show()
+    # ax.quiver(ra, dec, ra_cycle, dec_cycle, units="xy", scale=400, width=0.005)
+
+    # plt.show()
+
+
+def check_fvc_coords():
+
+    data = pandas.read_hdf(RESULTS / "dither_data_fvc.h5")
+
+    # Override xywok from xyFocal
+    wokna = data.xwok.isna()
+
+    data.loc[wokna, ("xwok", "ywok")] = data.loc[wokna, ("xFocal", "yFocal")].values
+    data = data.loc[1689]
+    data = data.loc[(data.xwok > -999) & (data.assigned == 1)]
+    data = data.loc[data.parent_configuration.isna()]
+    # data = data.loc[pandas.IndexSlice[:, "A"], :]
+    # data = data.loc[data.index.get_level_values(0) != 865]
+
+    diff = (
+        data.loc[data.isFVC == 0, ["xwok", "ywok", "ra", "dec"]]
+        - data.loc[data.isFVC == 1, ["xwok", "ywok", "ra", "dec"]]
+    )
+
+    # m = diff.groupby("configuration_id").apply(numpy.mean)
+    # plt.plot(m.index.get_level_values(0), m.dec * 3600.0)
+    # plt.show()
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+    cmap = seaborn.diverging_palette(250, 30, l=65, center="dark", as_cmap=True)
+
+    hex_xwok = axes[0].hexbin(
+        x=data.loc[data.isFVC == 0].xwok,
+        y=data.loc[data.isFVC == 0].ywok,
+        C=diff.xwok,
+        gridsize=15,
+        cmap=cmap,
+        reduce_C_function=numpy.median,
+    )
+    cmap_xwok = plt.colorbar(hex_xwok, ax=axes[0])
+    cmap_xwok.set_label(r"$\Delta x_{\rm wok}\ {\rm [mm]}$")
+    axes[0].set_xlabel(r"$x_{\rm wok}$")
+    axes[0].set_ylabel(r"$y_{\rm wok}$")
+
+    hex_ywok = axes[1].hexbin(
+        x=data.loc[data.isFVC == 0].xwok,
+        y=data.loc[data.isFVC == 0].ywok,
+        C=diff.ywok,
+        gridsize=15,
+        cmap=cmap,
+        reduce_C_function=numpy.median,
+    )
+    cmap_ywok = plt.colorbar(hex_ywok, ax=axes[1])
+    cmap_ywok.set_label(r"$\Delta y_{\rm wok}\ {\rm [mm]}$")
+    axes[1].set_xlabel(r"$x_{\rm wok}$")
+    axes[1].set_ylabel(r"$y_{\rm wok}$")
+
+    fig.suptitle("Wok vs wok difference")
+
+    seaborn.despine()
+    plt.tight_layout()
+
+    fig.savefig(RESULTS / "fvc_xywok_diff.pdf")
+
+    plt.close("all")
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+    cmap = seaborn.diverging_palette(250, 30, l=65, center="dark", as_cmap=True)
+
+    hex_xwok = axes[0].hexbin(
+        x=data.loc[data.isFVC == 0].xwok,
+        y=data.loc[data.isFVC == 0].ywok,
+        C=diff.ra * numpy.cos(numpy.deg2rad(data.loc[data.isFVC == 0].deccen)) * 3600.0,
+        gridsize=15,
+        cmap=cmap,
+        reduce_C_function=numpy.median,
+    )
+    cmap_xwok = plt.colorbar(hex_xwok, ax=axes[0])
+    cmap_xwok.set_label(r"$\Delta\alpha\ {\rm [arcsec]}$")
+    axes[0].set_xlabel(r"$x_{\rm wok}$")
+    axes[0].set_ylabel(r"$y_{\rm wok}$")
+
+    hex_ywok = axes[1].hexbin(
+        x=data.loc[data.isFVC == 0].xwok,
+        y=data.loc[data.isFVC == 0].ywok,
+        C=diff.dec * 3600.0,
+        gridsize=15,
+        cmap=cmap,
+        reduce_C_function=numpy.median,
+    )
+    cmap_ywok = plt.colorbar(hex_ywok, ax=axes[1])
+    cmap_ywok.set_label(r"$\Delta\delta\ {\rm [arcsec]}$")
+    axes[1].set_xlabel(r"$x_{\rm wok}$")
+    axes[1].set_ylabel(r"$y_{\rm wok}$")
+
+    fig.suptitle("Wok vs RA/Dec difference")
+
+    seaborn.despine()
+    plt.tight_layout()
+
+    fig.savefig(RESULTS / "fvc_radec_diff.pdf")
+
+    plt.close("all")
 
 
 if __name__ == "__main__":
@@ -425,3 +530,5 @@ if __name__ == "__main__":
     # plot_cycle()
 
     simulate_radec()
+
+    # check_fvc_coords()
