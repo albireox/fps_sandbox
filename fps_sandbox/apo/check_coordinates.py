@@ -430,20 +430,18 @@ def check_fvc_coords():
     wokna = data.xwok.isna()
 
     data.loc[wokna, ("xwok", "ywok")] = data.loc[wokna, ("xFocal", "yFocal")].values
-    data = data.loc[1689]
-    data = data.loc[(data.xwok > -999) & (data.assigned == 1)]
+
+    data = data.loc[data.mjd >= 59594]
+    data = data.loc[data.xwok > -999]
     data = data.loc[data.parent_configuration.isna()]
-    # data = data.loc[pandas.IndexSlice[:, "A"], :]
-    # data = data.loc[data.index.get_level_values(0) != 865]
+    data = data.loc[data.assigned == 1, :]
 
     diff = (
         data.loc[data.isFVC == 0, ["xwok", "ywok", "ra", "dec"]]
         - data.loc[data.isFVC == 1, ["xwok", "ywok", "ra", "dec"]]
     )
 
-    # m = diff.groupby("configuration_id").apply(numpy.mean)
-    # plt.plot(m.index.get_level_values(0), m.dec * 3600.0)
-    # plt.show()
+    print(diff.groupby("fiberType").describe())
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
 
@@ -526,9 +524,9 @@ def check_fvc_coords():
 
 if __name__ == "__main__":
 
-    # create_dataframe()
+    create_dataframe()
     # plot_cycle()
 
-    simulate_radec()
+    # simulate_radec()
 
     # check_fvc_coords()

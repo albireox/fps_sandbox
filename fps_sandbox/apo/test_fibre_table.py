@@ -136,14 +136,71 @@ def test_fibre_table(design_id: int, epoch: float):
     raw_data = design.configuration.assignment_data.fibre_table.copy()
     fvc_data = simulate_fvc_data(design.configuration.assignment_data)
 
+    # raw_data.to_hdf(RESULTS / "raw_data.hdf", "data")
+    # fvc_data.to_hdf(RESULTS / "fvc_data.hdf", "data")
+
     plot_residuals(
         raw_data,
         fvc_data,
         design.field.deccen,
-        RESULTS / "raw_vs_fvc_dpos_zero.pdf",
+        RESULTS / "raw_vs_fvc.pdf",
         fibre="APOGEE",
     )
 
 
+def plot_wok_difference():
+
+    raw_data = pandas.read_hdf(RESULTS / "raw_data.hdf")
+    raw_data_orig = pandas.read_hdf(RESULTS / "raw_data_orig.hdf")
+
+    diff = raw_data.loc[:, ["xwok", "ywok"]] - raw_data_orig.loc[:, ["xwok", "ywok"]]
+    print(diff.groupby("fibre_type").describe())
+
+    diff = diff.loc[pandas.IndexSlice[:, ["APOGEE"]], :]
+    raw_data_apogee = raw_data.loc[pandas.IndexSlice[:, ["APOGEE"]], :]
+
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+
+    cmap = seaborn.diverging_palette(250, 30, l=65, center="dark", as_cmap=True)
+
+    hexxwok = axes[0].hexbin(
+        raw_data_apogee.xwok,
+        raw_data_apogee.ywok,
+        C=diff.xwok,
+        gridsize=15,
+        cmap=cmap,
+        reduce_C_function=numpy.median,
+    )
+
+    cmra = plt.colorbar(hexxwok, ax=axes[0])
+    cmra.set_label(r"$\Delta\ x_{\rm wok}\ $[mm]")
+
+    axes[0].set_xlim(-350, 350)
+    axes[0].set_xlabel(r"$x_{\rm wok}$")
+    axes[0].set_ylabel(r"$y_{\rm wok}$")
+
+    hexywok = axes[1].hexbin(
+        raw_data_apogee.xwok,
+        raw_data_apogee.ywok,
+        C=diff.ywok,
+        gridsize=15,
+        cmap=cmap,
+        reduce_C_function=numpy.median,
+    )
+
+    cmdec = plt.colorbar(hexywok, ax=axes[1])
+    cmdec.set_label(r"$\Delta\ y_{\rm wok}\ $[mm]")
+
+    axes[1].set_xlim(-350, 350)
+    axes[1].set_xlabel(r"$x_{\rm wok}$")
+    axes[1].set_ylabel(r"$y_{\rm wok}$")
+
+    seaborn.despine()
+    plt.tight_layout()
+
+    fig.savefig(RESULTS / "wok_diff.pdf")
+
+
 if __name__ == "__main__":
-    test_fibre_table(35891, 2459592.5733)
+    # test_fibre_table(35891, 2459592.5733)
+    plot_wok_difference()
