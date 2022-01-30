@@ -16,8 +16,9 @@ import tqdm
 from astropy.io import fits
 
 
+MJD = 59608
 RESULTS = pathlib.Path(__file__).parent / "../results"
-GIMG_DATA = pathlib.Path("/data/gcam/59607")
+GIMG_DATA = pathlib.Path(f"/data/gcam/{MJD}")
 
 
 def get_gimg_data():
@@ -42,7 +43,7 @@ def get_gimg_data():
 
     df = pandas.concat(data)
     df.set_index(["seq", "camera"])
-    df.to_hdf(RESULTS / "gimg-59607.h5", "data")
+    df.to_hdf(RESULTS / f"gimg-{MJD}.h5", "data")
 
 
 if __name__ == "__main__":
