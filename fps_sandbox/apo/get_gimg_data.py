@@ -42,7 +42,7 @@ def get_gimg_data():
         data.append(centroids)
 
     df = pandas.concat(data)
-    df.set_index(["seq", "camera"])
+    df = df.set_index(["seq", "camera"])
     df.to_hdf(RESULTS / f"gimg-{MJD}.h5", "data")
 
 
