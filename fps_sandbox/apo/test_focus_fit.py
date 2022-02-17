@@ -14,8 +14,8 @@ from cherno import config
 from cherno.acquisition import Acquisition
 
 
-MJD = 59620
-SEQ = 120
+MJD = 59625
+SEQ = 508
 
 
 async def test_focus_fit():
@@ -24,24 +24,25 @@ async def test_focus_fit():
 
     t0 = time()
 
-    for seq in range(200, 201):
-        images = path.glob(f"gimg-*-{seq:04d}.fits")
+    images = path.glob(f"gimg-*-{SEQ:04d}.fits")
 
-        config["extraction"]["output_dir"] = "/home/gallegoj/tmp/extraction"
-        config["acquisition"]["astrometry_dir"] = "/home/gallegoj/tmp/astrometry"
+    config["extraction"]["output_dir"] = "/home/gallegoj/tmp/extraction"
+    config["acquisition"]["astrometry_dir"] = "/home/gallegoj/tmp/astrometry"
 
-        acquisition = Acquisition("APO")
+    acquisition = Acquisition("APO")
+    print(
         await acquisition.process(
             None,
             list(images),
             write_proc=False,
             correct=False,
         )
+    )
 
-        print(round(time() - t0, 1))
-        t0 = time()
+    print(round(time() - t0, 1))
+    t0 = time()
 
-        print()
+    print()
 
     # print(acq_data)
 
