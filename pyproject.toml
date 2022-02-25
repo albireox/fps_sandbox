@@ -16,6 +16,7 @@ sep = "^1.2.0"
 matplotlib = {version=">3.5", allow-prereleases=true}
 seaborn = "^0.11.2"
 tqdm = "^4.62.3"
+rich = "^11.2.0"
 
 [tool.poetry.dev-dependencies]
 ipython = ">=8.0.0rc1"
