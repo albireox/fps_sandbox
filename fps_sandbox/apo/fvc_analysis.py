@@ -183,6 +183,116 @@ def plot_histograms(
                 plt.close(fig)
 
 
+def plot_all():
+    """Combines all FVC data."""
+
+    files = RESULTS.glob("fvc_data_[0-9]*.hdf")
+
+    dfs: list[pandas.DataFrame] = []
+    for file_ in files:
+        dfs.append(pandas.read_hdf(file_).reset_index())
+
+    fiber_data = pandas.concat(dfs)
+
+    fiber_data = fiber_data.dropna(
+        subset=["positioner_id", "exposure_no", "configuration_id"]
+    )
+    assigned = fiber_data.groupby("positioner_id").filter(
+        lambda g: g.assigned.any() & (g.offline == 0).all() & (g.on_target == 1).any()
+    )
+    assigned = assigned.loc[assigned.fibre_type == "Metrology"]
+
+    assigned["distance"] = (
+        numpy.hypot(
+            assigned.xwok - assigned.xwok_measured,
+            assigned.ywok - assigned.ywok_measured,
+        )
+        * 1000.0
+    )
+
+    assigned["exposure_idx"] = assigned.groupby("configuration_id")[
+        "exposure_no"
+    ].transform(lambda x: x.values - x.values[0] + 1)
+
+    assigned = assigned.loc[(assigned.exposure_idx > 0) & (assigned.exposure_idx <= 5)]
+    assigned = assigned.groupby("configuration_id").filter(
+        lambda g: (g.exposure_idx == 5).any()
+    )
+
+    fig, ax = plt.subplots()
+    seaborn.histplot(
+        data=assigned,
+        x="distance",
+        hue="exposure_idx",
+        element="step",
+        palette="deep",
+        multiple="dodge",
+        binwidth=1,
+        stat="density",
+        hue_order=[5, 4, 3, 2, 1],
+        ax=ax,
+    )
+
+    ax.set_xlim(0, 80)
+    ax.set_xlabel(r"Wok distance [$\rm\mu m$]")
+
+    legend = ax.get_legend()
+    ax.legend(
+        legend.legendHandles[::-1],
+        ["1", "2", "3", "4", "5"],
+        title=r"Exposure \#",
+    )
+
+    fig.savefig(RESULTS / "fvc_loop_all.pdf")
+    plt.close(fig)
+
+    breakpoint()
+
+
+def concat_all(filter: bool = True):
+    """Concatenates all FVC data."""
+
+    files = RESULTS.glob("fvc_data_[0-9]*.hdf")
+
+    dfs: list[pandas.DataFrame] = []
+    for file_ in files:
+        dfs.append(pandas.read_hdf(file_).reset_index())
+
+    fiber_data = pandas.concat(dfs)
+    fiber_data: pandas.DataFrame = fiber_data.loc[fiber_data.configuration_id.notna()]
+    fiber_data.loc[:, "configuration_id"] = pandas.to_numeric(
+        fiber_data.configuration_id,
+        downcast="integer",
+    )
+    fiber_data.drop(columns=["mismatched"], inplace=True)
+
+    fiber_data["exposure_idx"] = fiber_data.groupby(
+        "configuration_id"
+    ).exposure_no.transform(lambda x: x.values - min(x.values) + 1)
+
+    fiber_data["distance"] = (
+        numpy.hypot(
+            fiber_data.xwok - fiber_data.xwok_measured,
+            fiber_data.ywok - fiber_data.ywok_measured,
+        )
+        * 1000.0
+    )
+
+    if filter:
+        fiber_data = fiber_data.groupby("positioner_id").filter(
+            lambda g: g.assigned.any()
+            & (g.offline == 0).all()
+            & (g.on_target == 1).any()
+        )
+        fiber_data = fiber_data.loc[fiber_data.fibre_type == "Metrology"]
+        fiber_data.dropna(subset=["distance"], inplace=True)
+
+    fiber_data.set_index(["configuration_id", "exposure_no"], inplace=True)
+    fiber_data.sort_index(inplace=True)
+
+    return fiber_data
+
+
 if __name__ == "__main__":
 
     # for mjd in track(list(range(59600, 59629)), description="MJD"):
@@ -217,6 +327,8 @@ if __name__ == "__main__":
     #     ],
     # )
 
-    mjd = 59629
-    collect_fvc_data(mjd)
-    plot_histograms(mjd, overwrite=True)
+    # mjd = 59629
+    # collect_fvc_data(mjd)
+    # plot_histograms(mjd, overwrite=True)
+
+    plot_all()
