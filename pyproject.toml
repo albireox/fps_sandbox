@@ -17,9 +17,10 @@ matplotlib = {version=">3.5", allow-prereleases=true}
 seaborn = "^0.11.2"
 tqdm = "^4.62.3"
 rich = "^11.2.0"
+markupsafe = "2.0.1"
 
 [tool.poetry.dev-dependencies]
-ipython = ">=8.0.0rc1"
+ipython = ">=8.0.0"
 invoke = "*"
 flake8 = "*"
 doc8 = ">=0.8.0"
@@ -64,5 +65,5 @@ known_sdss = ["sdsstools", "clu", "sdssdb", "drift", "jaeger", "coordio", "kaiju
 lines_after_imports = 2
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.1.0a1"]
 build-backend = "poetry.core.masonry.api"
