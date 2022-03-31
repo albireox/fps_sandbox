@@ -65,5 +65,5 @@ known_sdss = ["sdsstools", "clu", "sdssdb", "drift", "jaeger", "coordio", "kaiju
 lines_after_imports = 2
 
 [build-system]
-requires = ["poetry-core>=1.1.0a1"]
+requires = ["poetry-core>=1.1.0a7"]
 build-backend = "poetry.core.masonry.api"
