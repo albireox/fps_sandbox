@@ -33,7 +33,7 @@ def collect_fvc_data(mjd: int, overwrite: bool = False):
     if outfile.exists() and not overwrite:
         return
 
-    dfs = []
+    dfs: list[pandas.DataFrame] = []
     for fimg in proc_fimg:
         hdus = fits.open(fimg)
 
@@ -44,12 +44,16 @@ def collect_fvc_data(mjd: int, overwrite: bool = False):
 
         fiber_data = pandas.DataFrame(hdus["FIBERDATA"].data)
 
-        fiber_data["configuration_id"] = hdus[1].header["CONFIGID"]
+        fiber_data["mjd"] = mjd
+        fiber_data["configuration_id"] = hdus[1].header.get("CONFIGID", -999)
         fiber_data["exposure_no"] = exp_no
-        fiber_data["RMS"] = hdus[1].header["FITRMS"]
+        fiber_data["RMS"] = hdus[1].header.get("FITRMS", -999)
 
         if "dubious" not in fiber_data:
-            fiber_data["dubious"] = fiber_data["mismatched"]
+            if "mismatched" in fiber_data:
+                fiber_data["dubious"] = fiber_data["mismatched"]
+            else:
+                fiber_data["dubious"] = 0
 
         dfs.append(fiber_data)
 
@@ -57,9 +61,16 @@ def collect_fvc_data(mjd: int, overwrite: bool = False):
         return
 
     fiber_data = pandas.concat(dfs)
+    fiber_data.sort_values(by="exposure_no", inplace=True)
+
+    exp_no = fiber_data.groupby(["configuration_id"])["exposure_no"]
+    fiber_data["exposure_idx"] = exp_no.transform(lambda x: x.values - x.values[0] + 1)
+
     fiber_data.set_index(["configuration_id", "exposure_no"], inplace=True)
+    fiber_data.sort_index(inplace=True)
 
     outfile.unlink(True)
+
     fiber_data.to_hdf(outfile, "data")
 
 
@@ -295,9 +306,9 @@ def concat_all(filter: bool = True):
 
 if __name__ == "__main__":
 
-    # for mjd in track(list(range(59600, 59629)), description="MJD"):
-    #     # collect_fvc_data(mjd, overwrite=True)
-    #     plot_histograms(mjd, overwrite=True)
+    for mjd in track(list(range(59543, 59655)), description="MJD"):
+        collect_fvc_data(mjd, overwrite=True)
+        # plot_histograms(mjd, overwrite=True)
 
     # mjd = 59632
     # collect_fvc_data(mjd)
@@ -331,4 +342,4 @@ if __name__ == "__main__":
     # collect_fvc_data(mjd)
     # plot_histograms(mjd, overwrite=True)
 
-    plot_all()
+    # plot_all()
