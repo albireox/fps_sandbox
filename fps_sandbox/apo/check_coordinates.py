@@ -20,7 +20,7 @@ import seaborn
 from matplotlib import pyplot as plt
 from matplotlib.colors import Colormap
 from pydl.pydlutils.yanny import yanny
-from tqdm import tqdm
+from rich.progress import track
 
 from coordio.utils import radec2wokxy, wokxy2radec
 
@@ -29,7 +29,7 @@ RESULTS = pathlib.Path(os.path.dirname(__file__)) / "../results"
 SDSSCORE_DIR = pathlib.Path(os.environ["SDSSCORE_DIR"])
 
 
-def create_dataframe(start_mjd: int = 59564):
+def create_dataframe(start_mjd: int = 59664, onlyF: bool = False):
     """Creates a dataframe with all dither sequences."""
 
     summaryF_files = sorted(SDSSCORE_DIR.glob("apo/**/confSummaryF*"))
@@ -45,9 +45,12 @@ def create_dataframe(start_mjd: int = 59564):
 
     dithers = []
 
-    for summary_file in tqdm(summaryF_files + summary_files):
+    for summary_file in track(summaryF_files + summary_files):
 
         isFVC = 1 if "confSummaryF" in str(summary_file) else 0
+        if isFVC == 0 and onlyF:
+            continue
+
         cid = int(str(summary_file).split("-")[1].split(".")[0])
 
         with open(summary_file, "r") as f:
@@ -93,7 +96,16 @@ def create_dataframe(start_mjd: int = 59564):
         df.loc[:, "racen"] = float(summary["raCen"])
         df.loc[:, "deccen"] = float(summary["decCen"])
 
-        dithers.append(df)
+        df.loc[:, ["focal_scale", "temperature"]] = numpy.nan
+        if "focal_scale" in summary:
+            df.loc[:, "focal_scale"] = float(summary["focal_scale"])
+        if "temperature" in summary:
+            df.loc[:, "temperature"] = float(summary["temperature"])
+
+        df_numeric = df.select_dtypes(["number"])
+        df_numeric["fiberType"] = df["fiberType"]
+
+        dithers.append(df_numeric)
 
     dithers_df = pandas.concat(dithers)
 
@@ -125,7 +137,7 @@ def radec_radeccat(data: pandas.DataFrame):
 
     delta_ra = (data.ra - data.racat) * numpy.cos(numpy.deg2rad(data.deccen))
     delta_dec = (data.dec - data.deccat) * numpy.cos(numpy.deg2rad(data.deccen))
-    data.loc[:, "delta_cat"] = numpy.sqrt(delta_ra ** 2 + delta_dec ** 2) * 3600.0
+    data.loc[:, "delta_cat"] = numpy.sqrt(delta_ra**2 + delta_dec**2) * 3600.0
 
     _, ax = plt.subplots()
 
@@ -345,7 +357,7 @@ def simulate_radec(racen: float = 105.0, deccen: float = 30.0, wave: str = "Apog
     ra = numpy.random.uniform(-1.5, 1.5, size=10000)
     dec = numpy.random.uniform(-1.5, 1.5, size=10000)
 
-    valid = numpy.where((ra ** 2 + dec ** 2) < 1.5 ** 2)
+    valid = numpy.where((ra**2 + dec**2) < 1.5**2)
     ra = (racen + ra[valid] / numpy.cos(deccen_rad)) % 360.0
     dec = deccen + dec[valid]
 
