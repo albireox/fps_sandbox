@@ -29,7 +29,7 @@ RESULTS = pathlib.Path(os.path.dirname(__file__)) / "../results"
 SDSSCORE_DIR = pathlib.Path(os.environ["SDSSCORE_DIR"])
 
 
-def create_dataframe(start_mjd: int = 59664, onlyF: bool = False):
+def create_dataframe(start_mjd: int = 59564, onlyF: bool = False):
     """Creates a dataframe with all dither sequences."""
 
     summaryF_files = sorted(SDSSCORE_DIR.glob("apo/**/confSummaryF*"))
