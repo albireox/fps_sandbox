@@ -32,9 +32,10 @@ RESULTS = pathlib.Path(os.path.dirname(__file__)) / "../results"
 SDSSCORE_DIR = pathlib.Path(os.environ["SDSSCORE_DIR"])
 
 
-def read_confSummary(path: str | pathlib.Path):
+def read_confSummary(path: str | pathlib.Path, return_yanny: bool = False) -> tuple:
 
-    header = dict(yanny(str(path)))
+    y = yanny(str(path))
+    header = dict(y)
 
     fibermap = header.pop("FIBERMAP")
     fibermap = fibermap[[col for col in fibermap.dtype.names if col != "mag"]]
@@ -52,6 +53,9 @@ def read_confSummary(path: str | pathlib.Path):
                 header[key] = float(value)
             except ValueError:
                 pass
+
+    if return_yanny:
+        return header, df.set_index(["positionerId", "fiberType"]), y
 
     return header, df.set_index(["positionerId", "fiberType"])
 
