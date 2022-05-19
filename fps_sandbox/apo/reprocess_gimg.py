@@ -12,6 +12,7 @@ import pathlib
 
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy
 import pandas
 import seaborn
 from astropy.io import fits
@@ -39,7 +40,7 @@ async def reprocess_gimg():
 
     results = []
 
-    for ii in range(1, max_no + 1):
+    for ii in range(1, 200):
         images = list(mjd_dir.glob(f"gimg-*-{ii:04d}.fits"))
         proc_images = list(mjd_dir.glob(f"proc-gimg-*-{ii:04d}.fits"))
 
@@ -52,13 +53,11 @@ async def reprocess_gimg():
             continue
 
         try:
-            deltara = proc_header["DELTARA"]
-            deltadec = proc_header["DELTADEC"]
-            deltarot = proc_header["DELTAROT"]
-            deltascl = proc_header["DELTASCL"]
             rms = proc_header["RMS"]
         except KeyError:
             continue
+
+        gimg_results = [ii, MJD, rms]
 
         ast_solution = await acquisition.process(
             None,
@@ -67,63 +66,53 @@ async def reprocess_gimg():
             overwrite=False,
             correct=False,
             full_correction=True,
+            scale_rms=True,
         )
 
         if ast_solution.valid_solution is False:
             continue
 
+        gimg_results.append(ast_solution.rms)
+
         acq_data = ast_solution.acquisition_data
 
-        ast_solution_scale = await acquisition.fit(acq_data, scale_rms=True)
+        for camera in range(1, 7):
+            found = False
+            for data in acq_data:
+                if data.camera == f"gfa{camera}":
+                    try:
+                        ast_solution_camera = await acquisition.fit(
+                            [data],
+                            scale_rms=True,
+                        )
+                    except Exception:
+                        break
+                    gimg_results.append(ast_solution_camera.rms)
+                    found = True
+                    break
 
-        acq_data_no_3 = [ad for ad in acq_data if int(ad.camera[-1]) != 3]
-        ast_solution_no_3 = await acquisition.fit(acq_data_no_3, scale_rms=True)
+            if not found:
+                gimg_results.append(numpy.nan)
 
-        acq_data_no_6 = [ad for ad in acq_data if int(ad.camera[-1]) != 6]
-        ast_solution_no_6 = await acquisition.fit(acq_data_no_6, scale_rms=True)
-
-        results.append(
-            (
-                ii,
-                MJD,
-                deltara,
-                deltadec,
-                deltarot,
-                deltascl,
-                rms,
-                ast_solution.delta_ra,
-                ast_solution.delta_dec,
-                ast_solution.delta_rot,
-                ast_solution.delta_scale,
-                ast_solution.rms,
-                ast_solution_scale.rms,
-                ast_solution_no_3.rms,
-                ast_solution_no_6.rms,
-            )
-        )
+        results.append(gimg_results)
 
     df = pandas.DataFrame.from_records(
         results,
         columns=[
             "image_no",
             "mjd",
-            "proc_deltara",
-            "proc_deltadec",
-            "proc_deltarot",
-            "proc_deltascl",
             "proc_rms",
-            "deltara",
-            "deltadec",
-            "deltarot",
-            "deltascl",
             "rms",
-            "scaled_rms",
-            "rms_no_3",
-            "rms_no_6",
+            "rms_1",
+            "rms_2",
+            "rms_3",
+            "rms_4",
+            "rms_5",
+            "rms_6",
         ],
     )
 
-    df.to_hdf(RESULTS / f"gimg_rms_{MJD}.h5", "data")
+    df.to_hdf(RESULTS / f"gimg_rms_per_camera_{MJD}.h5", "data")
 
 
 def plot_gimg_rms():
@@ -172,7 +161,8 @@ def plot_gimg_rms():
 
 if __name__ == "__main__":
 
-    # import asyncio
-    # asyncio.run(reprocess_gimg())
+    import asyncio
 
-    plot_gimg_rms()
+    asyncio.run(reprocess_gimg())
+
+    # plot_gimg_rms()
