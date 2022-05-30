@@ -81,10 +81,7 @@ async def reprocess_gimg():
             for data in acq_data:
                 if data.camera == f"gfa{camera}":
                     try:
-                        ast_solution_camera = await acquisition.fit(
-                            [data],
-                            scale_rms=True,
-                        )
+                        ast_solution_camera = await acquisition.fit([data])
                     except Exception:
                         break
                     gimg_results.append(ast_solution_camera.rms)
