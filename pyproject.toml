@@ -60,7 +60,7 @@ sections = ["FUTURE", "STDLIB", "TYPING", "THIRDPARTY", "SDSS", "FIRSTPARTY", "L
 default_section = "THIRDPARTY"
 known_first_party = "osu"
 known_typing = ["typing"]
-known_sdss = ["sdsstools", "clu", "sdssdb", "drift", "jaeger", "coordio", "kaiju"]
+known_sdss = ["sdsstools", "clu", "sdssdb", "drift", "jaeger", "coordio", "kaiju", "cherno"]
 lines_after_imports = 2
 
 [build-system]
