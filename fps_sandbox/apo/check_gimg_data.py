@@ -23,6 +23,7 @@ import seaborn
 from astropy.io.fits import getheader
 from astropy.time import Time, TimeDelta
 from astropy.wcs import WCS, FITSFixedWarning
+from matplotlib.backends.backend_pdf import PdfPages
 from rich.progress import Progress
 
 from cherno.utils import gfa_to_wok, umeyama
@@ -35,7 +36,8 @@ warnings.filterwarnings("ignore", module="astropy.wcs.wcs")
 warnings.filterwarnings("ignore", category=FITSFixedWarning)
 
 
-matplotlib.use("TkAgg")
+# matplotlib.use("TkAgg")
+matplotlib.use("MacOSX")
 seaborn.set_theme()
 
 
@@ -278,5 +280,115 @@ def check_internal_gfa_fit(mjds: list[int]):
             df.to_hdf(outpath, "data")
 
 
+def plot_fits(MJDS: list[int]):
+
+    with PdfPages(RESULTS / "gimg_mjd_fit.pdf") as pdf:
+        for mjd in range(MJDS[0], MJDS[1]):
+
+            data: pandas.DataFrame = pandas.read_hdf(RESULTS / (str(mjd) + ".hdf"))
+            data = data.loc[data.rms < 10.0]
+            data = data.sort_index()
+
+            axes: Any
+            fig, axes = plt.subplots(3, 1, sharex=True, figsize=(14, 8))
+
+            for ii, ax in enumerate(axes):
+
+                if ii == 0:
+                    y = "delta_ra"
+                elif ii == 1:
+                    y = "delta_dec"
+                else:
+                    y = "delta_rot"
+
+                seaborn.lineplot(
+                    x="seq_no",
+                    y=y,
+                    data=data,
+                    hue="camera_id",
+                    ax=ax,
+                    zorder=10,
+                    palette="deep",
+                )
+
+                seq_no_field = data.reset_index().groupby("fieldid").first().seq_no - 1
+
+                for seq_no in seq_no_field:
+                    ax.axvline(
+                        x=seq_no, zorder=0, color="k", alpha=0.5, linestyle="dashed"
+                    )
+
+                if ii != 0:
+                    ax.legend().set_visible(False)
+
+                ax.set_xlim(-75, None)
+                ax.set_ylabel(ax.get_ylabel() + " [arcsec]")
+
+            plt.tight_layout(rect=(0, 0, 1, 0.97))
+            fig.suptitle(str(mjd))
+
+            pdf.savefig(fig)
+            plt.close(fig)
+
+
+def analyse_fits(MJDS: list[int]):
+
+    dataset: list[pandas.DataFrame] = []
+    for mjd in range(MJDS[0], MJDS[1]):
+
+        data: pandas.DataFrame = pandas.read_hdf(RESULTS / (str(mjd) + ".hdf"))
+        data = data.loc[data.rms < 10.0]
+        data["mjd"] = mjd
+        dataset.append(data.sort_index().reset_index())
+
+    data = pandas.concat(dataset)
+
+    avg = data.groupby(["mjd", "camera_id", "fieldid"]).mean()
+    avg = avg.loc[:, ["delta_ra", "delta_dec", "delta_rot"]].reset_index()
+
+    for ii, (name, group) in enumerate(avg.groupby("fieldid")):
+        avg.loc[avg.fieldid == name, "fieldid_seq"] = ii + 1
+
+    axes: Any
+    fig, axes = plt.subplots(3, 1, sharex=True, figsize=(14, 8))
+
+    for ii, ax in enumerate(axes):
+
+        if ii == 0:
+            y = "delta_ra"
+        elif ii == 1:
+            y = "delta_dec"
+        else:
+            y = "delta_rot"
+
+        seaborn.lineplot(
+            x="fieldid_seq",
+            y=y,
+            data=avg,
+            hue="camera_id",
+            ax=ax,
+            zorder=10,
+            palette="deep",
+            markers=True,
+            ci=None,  # type: ignore
+            ms=5.0,
+            marker="o",
+        )
+
+        if ii != 0:
+            ax.legend().set_visible(False)
+
+        # ax.set_xlim(-75, None)
+        ax.set_ylabel(ax.get_ylabel() + " [arcsec]")
+
+    plt.tight_layout()
+
+    fig.savefig(RESULTS / "gimg_fit.pdf")
+
+    plt.close(fig)
+
+
 if __name__ == "__main__":
-    check_internal_gfa_fit(MJDS)
+    # check_internal_gfa_fit(MJDS)
+    plot_fits(MJDS)
+    # analyse_fits(MJDS)

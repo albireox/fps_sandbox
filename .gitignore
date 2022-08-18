@@ -106,5 +106,6 @@ setup.py
 .nox/
 
 fps_sandbox/results
+fps_sandbox/data/trajectories
 
 pyrightconfig.json

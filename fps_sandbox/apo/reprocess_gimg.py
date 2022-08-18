@@ -16,8 +16,8 @@ import numpy
 import pandas
 import seaborn
 from astropy.io import fits
-from cherno.acquisition import Acquisition
 
+from cherno.acquisition import Acquisition
 from coordio.defaults import PLATE_SCALE
 
 
@@ -26,7 +26,7 @@ seaborn.set_theme()
 
 RESULTS = pathlib.Path(os.path.dirname(__file__)) / "../results"
 DATA = pathlib.Path("/data/gcam")
-MJD = 59658
+MJD = 59560
 
 
 async def reprocess_gimg():
@@ -40,7 +40,7 @@ async def reprocess_gimg():
 
     results = []
 
-    for ii in range(1, 200):
+    for ii in range(1, max_no):
         images = list(mjd_dir.glob(f"gimg-*-{ii:04d}.fits"))
         proc_images = list(mjd_dir.glob(f"proc-gimg-*-{ii:04d}.fits"))
 
@@ -55,10 +55,10 @@ async def reprocess_gimg():
         try:
             rms = proc_header["RMS"]
         except KeyError:
-            continue
+            rms = -999.0
 
         gimg_results = [ii, MJD, rms]
-
+        print(images)
         ast_solution = await acquisition.process(
             None,
             images,
