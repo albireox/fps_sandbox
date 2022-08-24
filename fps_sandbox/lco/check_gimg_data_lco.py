@@ -3,7 +3,7 @@
 #
 # @Author: José Sánchez-Gallego (gallegoj@uw.edu)
 # @Date: 2022-05-29
-# @Filename: check_gimg_data.py
+# @Filename: check_gimg_data_lco.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 from __future__ import annotations
@@ -44,7 +44,6 @@ seaborn.set_theme()
 def fit_one(
     gimg_path: pathlib.Path,
     grid: tuple[int, int] = (10, 10),
-    scale_rms: bool = True,
     internal_fit: bool = True,
 ) -> tuple | None:
     """Fits one camera with internal rotation."""
@@ -171,10 +170,6 @@ def fit_one(
     delta_rot = numpy.round(-numpy.rad2deg(numpy.arctan2(R[1, 0], R[0, 0])) * 3600.0, 1)
     delta_scale = numpy.round(c, 6)
 
-    if scale_rms:
-        xwok_astro /= delta_scale
-        ywok_astro /= delta_scale
-
     delta_x = (numpy.array(xwok_gfa) - numpy.array(xwok_astro)) ** 2  # type: ignore
     delta_y = (numpy.array(ywok_gfa) - numpy.array(ywok_astro)) ** 2  # type: ignore
 
@@ -213,16 +208,20 @@ def fit_one(
     )
 
 
-RESULTS = pathlib.Path(__file__).parents[1] / "results" / "gimg_fits"
-DATA = pathlib.Path("/uufs/chpc.utah.edu/common/home/sdss50/sdsswork/data/gcam/apo")
-N_CORES = 16
-MJDS = [59714, 59728]
+RESULTS = pathlib.Path(__file__).parents[1] / "results" / "lco" / "gimg_fits"
+DATA = pathlib.Path("/data/gcam")
+N_CORES = 4
+MJDS = [59810, 59811]
 
 
 def check_internal_gfa_fit(mjds: list[int]):
 
     with Progress() as progress:
         for mjd in range(mjds[0], mjds[1] + 1):
+
+            outpath = RESULTS / (str(mjd) + ".hdf")
+            if outpath.exists():
+                continue
 
             gcam_data = DATA / str(mjd)
 
@@ -271,11 +270,7 @@ def check_internal_gfa_fit(mjds: list[int]):
 
             df.set_index(["seq_no", "camera_id"], inplace=True)
 
-            RESULTS.mkdir(exist_ok=True)
-
-            outpath = RESULTS / (str(mjd) + ".hdf")
-            if outpath.exists():
-                outpath.unlink()
+            RESULTS.mkdir(exist_ok=True, parents=True)
 
             df.to_hdf(outpath, "data")
 
@@ -286,7 +281,7 @@ def plot_fits(MJDS: list[int]):
         for mjd in range(MJDS[0], MJDS[1] + 1):
 
             data: pandas.DataFrame = pandas.read_hdf(RESULTS / (str(mjd) + ".hdf"))
-            data = data.loc[data.rms < 10.0]
+            # data = data.loc[data.rms < 10.0]
             data = data.sort_index()
 
             axes: Any
@@ -337,7 +332,7 @@ def analyse_fits(MJDS: list[int]):
     for mjd in range(MJDS[0], MJDS[1] + 1):
 
         data: pandas.DataFrame = pandas.read_hdf(RESULTS / (str(mjd) + ".hdf"))
-        data = data.loc[data.rms < 10.0]
+        # data = data.loc[data.rms < 10.0]
         data["mjd"] = mjd
         dataset.append(data.sort_index().reset_index())
 
@@ -388,7 +383,68 @@ def analyse_fits(MJDS: list[int]):
     plt.close(fig)
 
 
+def calculate_offsets(
+    observatory: str,
+    data: pandas.DataFrame,
+    best_cameras: list[int],
+    apply_to_gfa_coords: bool = False,
+    direction: str = "+",
+):
+
+    data = data.reset_index().set_index("seq_no")
+
+    data["best_delta_xwok"] = data.groupby("seq_no").apply(
+        lambda g: (g.loc[g.camera_id.isin(best_cameras), ["delta_xwok"]]).mean()
+    )
+    data["best_delta_ywok"] = data.groupby("seq_no").apply(
+        lambda g: (g.loc[g.camera_id.isin(best_cameras), ["delta_ywok"]]).mean()
+    )
+    data["best_delta_rot"] = data.groupby("seq_no").apply(
+        lambda g: (g.loc[g.camera_id.isin(best_cameras), ["delta_rot"]]).mean()
+    )
+
+    xwok_camera_offset = data.groupby("camera_id").apply(
+        lambda g: (g.delta_xwok - g.best_delta_xwok).mean()
+    )
+    ywok_camera_offset = data.groupby("camera_id").apply(
+        lambda g: (g.delta_ywok - g.best_delta_ywok).mean()
+    )
+
+    rot_camera_offset = data.groupby("camera_id").apply(
+        lambda g: (g.delta_rot - g.best_delta_rot).mean()
+    )
+
+    xwok_camera_offset.name = "xwok_camera_offset"
+    ywok_camera_offset.name = "ywok_camera_offset"
+    rot_camera_offset.name = "rot_camera_offset"
+
+    data_offsets = pandas.concat(
+        (
+            xwok_camera_offset,
+            ywok_camera_offset,
+            rot_camera_offset,
+        ),
+        axis=1,
+    )
+
+    if not apply_to_gfa_coords:
+        return data_offsets
+
+    gfa_coords = calibration.gfaCoords.reset_index()
+    gfa_coords = gfa_coords.loc[gfa_coords.site == observatory]
+
+    sign = 1 if direction == "+" else -1
+    for camera_id in range(1, 7):
+        xwok_offset = sign * data_offsets.loc[camera_id, "xwok_camera_offset"]
+        gfa_coords.loc[gfa_coords.id == camera_id, "xWok"] += xwok_offset
+
+        ywok_offset = sign * data_offsets.loc[camera_id, "ywok_camera_offset"]
+        gfa_coords.loc[gfa_coords.id == camera_id, "yWok"] += ywok_offset
+
+    return data_offsets, gfa_coords
+
+
 if __name__ == "__main__":
-    # check_internal_gfa_fit(MJDS)
+    check_internal_gfa_fit(MJDS)
     plot_fits(MJDS)
-    # analyse_fits(MJDS)
+    analyse_fits(MJDS)
