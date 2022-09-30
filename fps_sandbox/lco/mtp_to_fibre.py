@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import itertools
 import pathlib
+import sys
 
 import pandas
 
@@ -25,7 +26,7 @@ def mtp_to_fibre_lco():
 
     assignments = []
     for mtp in range(1, 11):
-        for ll, nn in mtp_block_ids[::-1]:
+        for ll, nn in mtp_block_ids:
             assignments.append((mtp, ll + nn, fiber_id))
             fiber_id += 1
 
@@ -46,9 +47,21 @@ def update_fiberAssignments(file_: pathlib.Path | str | None = None):
 
     mtp = mtp_to_fibre_lco()
 
+    # Swap 26 and 27.
+    idx_26 = int(mtp.index[mtp.APOGEEFiber == 26][0])
+    idx_27 = int(mtp.index[mtp.APOGEEFiber == 27][0])
+    mtp.loc[idx_26, "APOGEEFiber"] = 27
+    mtp.loc[idx_27, "APOGEEFiber"] = 26
+
     for _, (mtp_id, mtp_fibre, apogee_fibre) in mtp.iterrows():
         fa.loc[
             (fa.LongLinkMTP == mtp_id) & (fa.MTPFiber == mtp_fibre), "APOGEEFiber"
         ] = apogee_fibre
 
+    fa.to_csv(str(file_) + ".updated", index=False)
+
     return fa
+
+
+if __name__ == "__main__":
+    update_fiberAssignments(sys.argv[1])
