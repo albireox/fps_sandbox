@@ -19,7 +19,6 @@ from astropy.io import fits
 from astropy.time import Time
 from matplotlib import pyplot as plt
 
-from cherno.acquisition import Acquisition
 from coordio.guide import cross_match, gfa_to_radec, radec_to_gfa
 from sdssdb.peewee.sdss5db import database
 
@@ -128,13 +127,5 @@ def test_gaia_guiding(file: str | pathlib.Path):
     ax.set_ylim(0, 2048)
 
 
-async def test_cherno(mjd: int, frame_no: int):
-
-    files = pathlib.Path(f"/data/gcam/lco/{mjd}").glob(f"gimg-*-{frame_no:04d}.*")
-
-    acq = Acquisition("LCO")
-    print(await acq.process(None, list(files), write_proc=False, correct=False))
-
-
 if __name__ == "__main__":
-    asyncio.run(test_cherno(59859, 150))
+    asyncio.run(test_cherno(59860))
