@@ -10,7 +10,9 @@ from __future__ import annotations
 
 import asyncio
 import pathlib
+from io import StringIO
 
+import matplotlib.pyplot as plt
 import numpy
 import pandas
 from astropy.io import fits
@@ -18,6 +20,7 @@ from tqdm import tqdm
 
 from cherno import config, set_observatory
 from cherno.acquisition import Acquisition
+from coordio import calibration
 
 
 OUTPUT = pathlib.Path(__file__).parent / "../results/lco/gcam_reprocess"
@@ -243,6 +246,61 @@ async def get_wok_coordinates(
     data_mjds = data_mjds.reset_index(drop=True)
 
     return data_mjds
+
+
+def generate_gfa_coords(file_: str | pathlib.Path, plot: bool = True):
+    """Generates a new set to gfaCoords."""
+
+    data = pandas.read_csv(str(file_))
+
+    # Offset between expected camera centres and astrometric position in wok coordinates
+    data.loc[:, "xwok_off"] = data.xwok_astro - data.xwok_gfa
+    data.loc[:, "ywok_off"] = data.ywok_astro - data.ywok_gfa
+
+    # Calculate averages, weighted by RMS.
+    xoff = data.groupby(["gfa_id"]).apply(
+        lambda d: numpy.average(d.xwok_off, weights=1 / d.RMS)
+    )
+    yoff = data.groupby(["gfa_id"]).apply(
+        lambda d: numpy.average(d.ywok_off, weights=1 / d.RMS)
+    )
+
+    # Print offsets in x and ywok coordinates.
+    for gfa_id in sorted(data.gfa_id.unique()):
+        xoff_gfa = xoff.loc[gfa_id]
+        yoff_gfa = yoff.loc[gfa_id]
+        print(f"GFA{gfa_id:.0f}: ({xoff_gfa:.2f}, {yoff_gfa:.2f})")
+
+    # Quiver plot of offsets.
+    if plot:
+        x_mean = data.groupby(["gfa_id"]).xwok_astro.median()
+        y_mean = data.groupby(["gfa_id"]).ywok_astro.median()
+        plt.quiver(x_mean.values, y_mean.values, xoff.values * 20, yoff.values * 20)
+
+    gfa_coords = calibration.gfaCoords.loc["LCO"].copy()
+    if len(gfa_coords) == 0:
+        raise ValueError("No current GFA coordinates found.")
+
+    # Correct the GFA positions by the measured offsets.
+    gfa_coords.xWok += xoff
+    gfa_coords.yWok += yoff
+
+    # Recentre the cameras as a block so that their average in x and y is (0,0)
+    gfa_coords.xWok -= gfa_coords.xWok.mean()
+    gfa_coords.yWok -= gfa_coords.yWok.mean()
+
+    # Some DF gymnastics to get the gfaCoords with the right columns and order.
+    gfa_coords.reset_index(inplace=True)
+    gfa_coords["site"] = "LCO"
+    gfa_coords.set_index(["site", "id"], inplace=True)
+    gfa_coords.reset_index(inplace=True)
+
+    io = StringIO()
+    gfa_coords.to_csv(io, index=True)
+
+    io.seek(0)
+    print()
+    print(io.read())
 
 
 if __name__ == "__main__":
