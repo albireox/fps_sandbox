@@ -9,6 +9,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import pathlib
 from io import StringIO
 
@@ -26,16 +27,24 @@ from coordio import calibration
 OUTPUT = pathlib.Path(__file__).parent / "../results/lco/gcam_reprocess"
 
 
-async def gcam_reprocess(mjd: int, step: int = 1):
+async def gcam_reprocess(
+    mjd: int,
+    step: int = 1,
+    gcam_root: pathlib.Path | str = "/data/gcam",
+    observatory: str | None = None,
+):
 
-    path = pathlib.Path(f"/data/gcam/lco/{mjd}")
+    gcam_root = pathlib.Path(gcam_root)
+    path = gcam_root / f"{mjd}"
 
     procs = path.glob("proc-gimg-*.fits")
     max_frame_no = int(str(list(sorted(procs))[-1]).split("-")[-1].split(".")[0])
 
     results = []
 
-    acq = Acquisition("LCO")
+    observatory = observatory or os.environ["OBSERVATORY"]
+
+    acq = Acquisition(observatory)
     acq.command.log.setLevel(100)  # type: ignore
 
     for frame_no in tqdm(range(1, max_frame_no + 1, step)):
@@ -160,7 +169,11 @@ async def get_wok_coordinates(
     observatory: str,
     mjds: int | list[int],
     rms: float = 2.5,
+    gcam_root: pathlib.Path | str = "/data/gcam",
 ):
+
+    observatory = observatory.upper()
+    gcam_root = pathlib.Path(gcam_root)
 
     if isinstance(mjds, (int, float)):
         mjds = [int(mjds)]
@@ -171,10 +184,12 @@ async def get_wok_coordinates(
 
     set_observatory(observatory)
 
-    acq = Acquisition(observatory.upper())
+    acq = Acquisition(observatory)
     acq.command.log.setLevel(100)  # type: ignore
 
-    if config["observatory"] != observatory.upper():
+    assert config
+
+    if config["observatory"] != observatory:
         raise ValueError("Observatory not correctly set.")
 
     config["extraction"]["plot"] = False
@@ -183,7 +198,7 @@ async def get_wok_coordinates(
     data = []
     for mjd in mjds:
 
-        path = pathlib.Path(f"/data/gcam/lco/{mjd}")
+        path = gcam_root / str(mjd)
 
         procs = path.glob("proc-gimg-*.fits")
         max_frame_no = int(str(list(sorted(procs))[-1]).split("-")[-1].split(".")[0])
@@ -214,8 +229,6 @@ async def get_wok_coordinates(
                     list(files),
                     write_proc=False,
                     correct=False,
-                    use_gaia=True,
-                    use_astrometry_net=False,
                 )
             except Exception:
                 continue
@@ -248,22 +261,23 @@ async def get_wok_coordinates(
     return data_mjds
 
 
-def generate_gfa_coords(file_: str | pathlib.Path, plot: bool = True):
+def generate_gfa_coords(
+    observatory: str,
+    data: str | pathlib.Path | pandas.DataFrame,
+    plot: bool = True,
+):
     """Generates a new set to gfaCoords."""
 
-    data = pandas.read_csv(str(file_))
+    if not isinstance(data, pandas.DataFrame):
+        data = pandas.read_csv(str(data))
 
     # Offset between expected camera centres and astrometric position in wok coordinates
     data.loc[:, "xwok_off"] = data.xwok_astro - data.xwok_gfa
     data.loc[:, "ywok_off"] = data.ywok_astro - data.ywok_gfa
 
-    # Calculate averages, weighted by RMS.
-    xoff = data.groupby(["gfa_id"]).apply(
-        lambda d: numpy.average(d.xwok_off, weights=1 / d.RMS)
-    )
-    yoff = data.groupby(["gfa_id"]).apply(
-        lambda d: numpy.average(d.ywok_off, weights=1 / d.RMS)
-    )
+    # Calculate averages.
+    xoff = data.groupby(["gfa_id"]).apply(lambda d: numpy.mean(d.xwok_off))
+    yoff = data.groupby(["gfa_id"]).apply(lambda d: numpy.mean(d.ywok_off))
 
     # Print offsets in x and ywok coordinates.
     for gfa_id in sorted(data.gfa_id.unique()):
@@ -275,9 +289,18 @@ def generate_gfa_coords(file_: str | pathlib.Path, plot: bool = True):
     if plot:
         x_mean = data.groupby(["gfa_id"]).xwok_astro.median()
         y_mean = data.groupby(["gfa_id"]).ywok_astro.median()
-        plt.quiver(x_mean.values, y_mean.values, xoff.values * 20, yoff.values * 20)
+        plt.quiver(
+            x_mean.values,
+            y_mean.values,
+            xoff.values,
+            yoff.values,
+            scale=1,
+            pivot="mid",
+            angles="xy",
+            scale_units="xy",
+        )
 
-    gfa_coords = calibration.gfaCoords.loc["LCO"].copy()
+    gfa_coords = calibration.gfaCoords.loc[observatory].copy()
     if len(gfa_coords) == 0:
         raise ValueError("No current GFA coordinates found.")
 
@@ -291,7 +314,7 @@ def generate_gfa_coords(file_: str | pathlib.Path, plot: bool = True):
 
     # Some DF gymnastics to get the gfaCoords with the right columns and order.
     gfa_coords.reset_index(inplace=True)
-    gfa_coords["site"] = "LCO"
+    gfa_coords["site"] = observatory
     gfa_coords.set_index(["site", "id"], inplace=True)
     gfa_coords.reset_index(inplace=True)
 
