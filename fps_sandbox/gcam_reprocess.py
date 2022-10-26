@@ -286,12 +286,6 @@ def generate_gfa_coords(
     xoff = data.groupby(["gfa_id"]).apply(lambda d: numpy.mean(d.xwok_off))
     yoff = data.groupby(["gfa_id"]).apply(lambda d: numpy.mean(d.ywok_off))
 
-    # Print offsets in x and ywok coordinates.
-    for gfa_id in sorted(data.gfa_id.unique()):
-        xoff_gfa = xoff.loc[gfa_id]
-        yoff_gfa = yoff.loc[gfa_id]
-        print(f"GFA{gfa_id:.0f}: ({xoff_gfa:.2f}, {yoff_gfa:.2f})")
-
     # Quiver plot of offsets.
     if plot:
         x_mean = data.groupby(["gfa_id"]).xwok_astro.median()
@@ -301,32 +295,59 @@ def generate_gfa_coords(
             y_mean.values,
             xoff.values,
             yoff.values,
-            scale=1,
-            pivot="mid",
+            scale=0.001,
+            units="xy",
             angles="xy",
             scale_units="xy",
         )
 
     gfa_coords = calibration.gfaCoords.loc[observatory].copy()
+    new_gfa_coords = gfa_coords.copy()
+
     if len(gfa_coords) == 0:
         raise ValueError("No current GFA coordinates found.")
 
-    # Correct the GFA positions by the measured offsets.
-    gfa_coords.xWok += xoff
-    gfa_coords.yWok += yoff
+    for gfa_id in sorted(data.gfa_id.unique()):
 
-    # Recentre the cameras as a block so that their average in x and y is (0,0)
-    gfa_coords.xWok -= gfa_coords.xWok.mean()
-    gfa_coords.yWok -= gfa_coords.yWok.mean()
+        cam_coords = gfa_coords.loc[gfa_id]
+        offset = cam_coords.loc[["xWok", "yWok"]].values[numpy.newaxis].T
+
+        data_cam = data.loc[data.gfa_id == gfa_id]
+
+        c, R, t = umeyama(
+            data_cam.loc[:, ["xwok_gfa", "ywok_gfa"]].values.T - offset,
+            data_cam.loc[:, ["xwok_astro", "ywok_astro"]].values.T - offset,
+        )
+
+        new_gfa_coords.loc[gfa_id, "xWok"] += t[0]
+        new_gfa_coords.loc[gfa_id, "yWok"] += t[1]
+
+        j = numpy.array([cam_coords.loc["jx"], cam_coords.loc["jy"]])
+        new_j = numpy.matmul(R, j)
+
+        new_gfa_coords.loc[gfa_id, "jx"] = new_j[0]
+        new_gfa_coords.loc[gfa_id, "jy"] = new_j[1]
+        new_gfa_coords.loc[gfa_id, "ix"] = new_j[1]
+        new_gfa_coords.loc[gfa_id, "iy"] = -new_j[0]
+
+        rotation_old = numpy.rad2deg(numpy.arctan2(*j)) % 360
+        rotation_new = numpy.rad2deg(numpy.arctan2(*new_j)) % 360
+        rot_diff = rotation_new - rotation_old
+
+        print(f"GFA{gfa_id:.0f}: translation {t}; rotation {rot_diff:.3f}")
+
+    # # Recentre the cameras as a block so that their average in x and y is (0,0)
+    new_gfa_coords.xWok -= new_gfa_coords.xWok.mean()
+    new_gfa_coords.yWok -= new_gfa_coords.yWok.mean()
 
     # Some DF gymnastics to get the gfaCoords with the right columns and order.
-    gfa_coords.reset_index(inplace=True)
-    gfa_coords["site"] = observatory
-    gfa_coords.set_index(["site", "id"], inplace=True)
-    gfa_coords.reset_index(inplace=True)
+    new_gfa_coords.reset_index(inplace=True)
+    new_gfa_coords["site"] = observatory
+    new_gfa_coords.set_index(["site", "id"], inplace=True)
+    new_gfa_coords.reset_index(inplace=True)
 
     io = StringIO()
-    gfa_coords.to_csv(io, index=True)
+    new_gfa_coords.to_csv(io, index=True)
 
     io.seek(0)
     print()
