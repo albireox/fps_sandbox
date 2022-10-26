@@ -170,6 +170,8 @@ async def get_wok_coordinates(
     mjds: int | list[int],
     rms: float = 2.5,
     gcam_root: pathlib.Path | str = "/data/gcam",
+    use_astrometry_net: bool = True,
+    use_gaia: bool = True,
 ):
 
     observatory = observatory.upper()
@@ -229,6 +231,10 @@ async def get_wok_coordinates(
                     list(files),
                     write_proc=False,
                     correct=False,
+                    use_astrometry_net=use_astrometry_net,
+                    use_gaia=use_gaia,
+                    fit_all_detections=True,
+                    fit_focus=False,
                 )
             except Exception:
                 continue
@@ -246,7 +252,8 @@ async def get_wok_coordinates(
                 result.loc[:, "region_id"] = result.index.values + 1
                 result.loc[:, "frame"] = frame_no
                 result.loc[:, "PA"] = round(header.get("FIELDPA", -999.0), 1)
-                result.loc[:, "RMS"] = round(header.get("RMS", -999.0), 2)
+                result.loc[:, "RMS_proc"] = round(header.get("RMS", -999.0), 2)
+                result.loc[:, "RMS_recalc"] = round(astrometry.guider_fit.rms, 2)
 
                 results.append(result)
 
