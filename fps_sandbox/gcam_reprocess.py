@@ -22,6 +22,7 @@ from tqdm import tqdm
 from cherno import config, set_observatory
 from cherno.acquisition import Acquisition
 from coordio import calibration
+from coordio.guide import umeyama
 
 
 OUTPUT = pathlib.Path(__file__).parent / "../results/lco/gcam_reprocess"
@@ -273,7 +274,19 @@ def generate_gfa_coords(
     data: str | pathlib.Path | pandas.DataFrame,
     plot: bool = True,
 ):
-    """Generates a new set to gfaCoords."""
+    """Generates a new set to gfaCoords.
+
+    To use this function first generate a data frame of wok coordinates using
+    ``get_wok_coordinates``. You can generate several days of data and then
+    combine them in a single data frame. Make sure you have the fps_calibrations
+    that were used to get that data in your $WOK_CALIBS.
+
+    This function will plot the average translation between GFA wok coordinates
+    and those derived from astrometric solutions, for each camera. Then, for each
+    camera, it will fit translation, rotation, and scale, and will ouput the
+    measured translations and rotations, and a new set of GFA coordinates.
+
+    """
 
     if not isinstance(data, pandas.DataFrame):
         data = pandas.read_csv(str(data))
@@ -283,13 +296,13 @@ def generate_gfa_coords(
     data.loc[:, "ywok_off"] = data.ywok_astro - data.ywok_gfa
 
     # Calculate averages.
-    xoff = data.groupby(["gfa_id"]).apply(lambda d: numpy.mean(d.xwok_off))
-    yoff = data.groupby(["gfa_id"]).apply(lambda d: numpy.mean(d.ywok_off))
+    xoff = data.groupby(["gfa_id"]).apply(lambda d: float(numpy.mean(d.xwok_off)))
+    yoff = data.groupby(["gfa_id"]).apply(lambda d: float(numpy.mean(d.ywok_off)))
 
     # Quiver plot of offsets.
     if plot:
-        x_mean = data.groupby(["gfa_id"]).xwok_astro.median()
-        y_mean = data.groupby(["gfa_id"]).ywok_astro.median()
+        x_mean = data.groupby(["gfa_id"])["xwok_astro"].median()
+        y_mean = data.groupby(["gfa_id"])["ywok_astro"].median()
         plt.quiver(
             x_mean.values,
             y_mean.values,
@@ -310,33 +323,39 @@ def generate_gfa_coords(
     for gfa_id in sorted(data.gfa_id.unique()):
 
         cam_coords = gfa_coords.loc[gfa_id]
-        offset = cam_coords.loc[["xWok", "yWok"]].values[numpy.newaxis].T
+        current_cam_pos = cam_coords.loc[["xWok", "yWok"]].values[numpy.newaxis].T
 
         data_cam = data.loc[data.gfa_id == gfa_id]
 
+        # Fit translation, rotation, and scale with the cameras centred at zero.
         c, R, t = umeyama(
-            data_cam.loc[:, ["xwok_gfa", "ywok_gfa"]].values.T - offset,
-            data_cam.loc[:, ["xwok_astro", "ywok_astro"]].values.T - offset,
+            data_cam.loc[:, ["xwok_gfa", "ywok_gfa"]].values.T - current_cam_pos,
+            data_cam.loc[:, ["xwok_astro", "ywok_astro"]].values.T - current_cam_pos,
         )
 
-        new_gfa_coords.loc[gfa_id, "xWok"] += t[0]
-        new_gfa_coords.loc[gfa_id, "yWok"] += t[1]
+        # Modify the current camera centres with the translation we just measured.
+        new_gfa_coords.loc[gfa_id, "xWok"] += t[0]  # type: ignore
+        new_gfa_coords.loc[gfa_id, "yWok"] += t[1]  # type: ignore
 
+        # The j vector in gfaCoords has jx and jy aligned with wok xy coordinates
+        # so it's the easiest to use. We apply the rotation from the fit.
         j = numpy.array([cam_coords.loc["jx"], cam_coords.loc["jy"]])
         new_j = numpy.matmul(R, j)
 
-        new_gfa_coords.loc[gfa_id, "jx"] = new_j[0]
-        new_gfa_coords.loc[gfa_id, "jy"] = new_j[1]
-        new_gfa_coords.loc[gfa_id, "ix"] = new_j[1]
-        new_gfa_coords.loc[gfa_id, "iy"] = -new_j[0]
+        # Update the unitary j vector (jz is always 1)
+        new_gfa_coords.loc[gfa_id, "jx"] = new_j[0]  # type: ignore
+        new_gfa_coords.loc[gfa_id, "jy"] = new_j[1]  # type: ignore
 
-        rotation_old = numpy.rad2deg(numpy.arctan2(*j)) % 360
-        rotation_new = numpy.rad2deg(numpy.arctan2(*new_j)) % 360
-        rot_diff = rotation_new - rotation_old
+        # Keep the unitary i vector perpendicular.
+        new_gfa_coords.loc[gfa_id, "ix"] = new_j[1]  # type: ignore
+        new_gfa_coords.loc[gfa_id, "iy"] = -new_j[0]  # type: ignore
 
-        print(f"GFA{gfa_id:.0f}: translation {t}; rotation {rot_diff:.3f}")
+        # Calculate the rotation in degrees and output some information.
+        rot = numpy.rad2deg(numpy.arctan2(R[0][1], R[0][0]))
 
-    # # Recentre the cameras as a block so that their average in x and y is (0,0)
+        print(f"GFA{gfa_id:.0f}: translation {t}; rotation {rot:.3f}")
+
+    # Recentre the cameras as a block so that their average in x and y is (0,0)
     new_gfa_coords.xWok -= new_gfa_coords.xWok.mean()
     new_gfa_coords.yWok -= new_gfa_coords.yWok.mean()
 
@@ -346,6 +365,7 @@ def generate_gfa_coords(
     new_gfa_coords.set_index(["site", "id"], inplace=True)
     new_gfa_coords.reset_index(inplace=True)
 
+    # Output the new coordinates in CSV
     io = StringIO()
     new_gfa_coords.to_csv(io, index=True)
 
