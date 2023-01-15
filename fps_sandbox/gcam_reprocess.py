@@ -25,7 +25,7 @@ from coordio import calibration
 from coordio.guide import umeyama
 
 
-OUTPUT = pathlib.Path(__file__).parent / "../results/lco/gcam_reprocess"
+OUTPUT = pathlib.Path(__file__).parent / "../results"
 
 
 async def gcam_reprocess(
@@ -353,7 +353,7 @@ def generate_gfa_coords(
         # Calculate the rotation in degrees and output some information.
         rot = numpy.rad2deg(numpy.arctan2(R[0][1], R[0][0]))
 
-        print(f"GFA{gfa_id:.0f}: translation {t}; rotation {rot:.3f}")
+        print(f"GFA{gfa_id:.0f}: translation {t}; rotation {rot:.3f}; scale {c:.6f}")
 
     # Recentre the cameras as a block so that their average in x and y is (0,0)
     new_gfa_coords.xWok -= new_gfa_coords.xWok.mean()
@@ -375,4 +375,17 @@ def generate_gfa_coords(
 
 
 if __name__ == "__main__":
-    asyncio.run(gcam_reprocess(59864))
+    data_mjds = asyncio.run(
+        get_wok_coordinates(
+            "APO",
+            [59873],
+            rms=1.0,
+            gcam_root="/data/gcam/apo/",
+        )
+    )
+
+    outpath = OUTPUT / "apo/gcam_reprocess"
+    outpath.mkdir(parents=True, exist_ok=True)
+    data_mjds.to_csv(outpath / "59873.csv", index=False)
+
+    generate_gfa_coords("APO", data_mjds)
