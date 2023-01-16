@@ -8,98 +8,150 @@
 
 from __future__ import annotations
 
+import multiprocessing
 import pathlib
+import re
 
-import matplotlib
-import matplotlib.pyplot as plt
+from typing import cast
+
 import numpy
 import pandas
+import seaborn
 from astropy.io import fits
-from astropy.table import Table
+from astropy.stats.sigma_clipping import SigmaClip
+from matplotlib import pyplot as plt
+
+from coordio.extraction import extract_marginal
 
 
-matplotlib.use("MacOSX")
-
-MJD = 59810
+seaborn.set_theme()
 
 
-def collect_data():
+MJD = 59959
+FRAME0 = 14
+FRAME1 = 23
+
+
+def _extract(file_: str):
+    """Extract sources."""
+
+    image = cast(numpy.ndarray, fits.getdata(file_, 1))
+    header = fits.getheader(file_, 1)
+    extracted = extract_marginal(image, sigma_0=4)
+
+    if len(extracted) > 0:
+        extracted["frame"] = get_seqno(file_)
+        extracted["m2"] = header.get("FOCUS", numpy.nan)
+        extracted["camera"] = header.get("CAMNAME", "NA")
+        return extracted
+
+    return None
+
+
+def get_seqno(path: pathlib.Path):
+    """Returns the sequence number."""
+
+    match = re.search(r"gimg-gfa[1-6]s-([0-9]+).fits", str(path))
+
+    if match:
+        return int(match.group(1))
+    else:
+        raise ValueError()
+
+
+def extract_data():
     """Collects the focus data and produces a data frame."""
 
-    files = pathlib.Path(f"/data/gcam/{MJD}").glob("proc-gimg-gfa[1-6]s*")
+    files = pathlib.Path(f"/data/gcam/lco/{MJD}").glob("gimg-gfa[1-6]s*")
+    files = [
+        str(file_)
+        for file_ in files
+        if get_seqno(file_) >= FRAME0 and get_seqno(file_) <= FRAME1
+    ]
 
-    # max_seq = 0
-    # for file in files:
-    #     match = re.search(r"proc-gimg-gfa[0-9]s-([0-9]+)\.fits", str(file))
-    #     if match:
-    #         seq = int(match.group(1))
-    #         if seq > max_seq:
-    #             max_seq = seq
+    data_frames = []
+    with multiprocessing.Pool(10) as pool:
+        for result in pool.imap(_extract, files):
+            if result is not None:
+                data_frames.append(result)
 
-    data = []
+    sources = pandas.concat(data_frames)
+    sources = sources.loc[(sources.xfitvalid == 1) & (sources.yfitvalid == 1)]
+    sources["std"] = numpy.average(
+        sources.loc[:, ["xstd", "ystd"]],
+        weights=1 / sources.loc[:, ["xrms", "yrms"]],
+        axis=1,
+    )
+    sources["rms"] = numpy.average(sources.loc[:, ["xrms", "yrms"]])
+    sources["fwhm"] = sources["std"] * 0.146 * 2.355
 
-    for file in files:
-        table_data = Table.read(str(file), 2).filled().as_array()
-        focus = fits.getheader(str(file), 1).get("FOCUS", -999.0)
-        df = pandas.DataFrame(table_data)
-        df.loc[:, "focus"] = focus
-        data.append(df)
-
-    data = pandas.concat(data)
-
-    data.set_index(["mjd", "exposure", "camera"], inplace=True)
-
-    outpath = pathlib.Path(__file__).parents[1] / "data" / "lco"
-    outpath.mkdir(exist_ok=True)
-
-    data.to_hdf(str(outpath / f"gcam-{MJD}.h5"), "data")
+    return sources
 
 
-def analyse_data():
+def calculate_median(data: pandas.DataFrame):
+    """Sigclips and calculates the median for each M2 position."""
 
-    path = pathlib.Path(__file__).parents[1] / "data" / "lco" / f"gcam-{MJD}.h5"
+    sigclip = SigmaClip(3)
 
-    data = pandas.read_hdf(str(path))
-    data = data.loc[data.fwhm < 5]
+    fwhm_median = data.groupby("m2").fwhm.apply(
+        lambda x: numpy.median(sigclip(x, masked=False))  # type: ignore
+    )
 
-    fig, ax = plt.subplots(1)
+    fwhm_median = fwhm_median.to_frame()
+    fwhm_median["std"] = data.groupby("m2").fwhm.apply(numpy.std)
 
-    best = []
-    for camera in [1, 2, 3, 4, 5, 6]:
-        camera_data = data.loc[(slice(None), slice(None), camera), :]
-        camera_median = camera_data.groupby("focus").min()
+    return fwhm_median
 
-        focus = camera_median.index.get_level_values(0)
-        fwhm = camera_median.fwhm
 
-        a, b, c = numpy.polyfit(focus, fwhm, 2, full=False)
-        x_min = -b / 2 / a
+def fit_parabola(data: pandas.DataFrame):
+    """Fits a parabola to the data."""
 
-        best.append(x_min)
+    medians = calculate_median(data)
 
-        print(f"Camera {camera}: {x_min}")
+    x = medians.index
+    y = medians.fwhm
+    w = 1 / medians["std"]
+    a, b, c = numpy.polyfit(x, y, 2, w=w, full=False)
 
-        x0 = numpy.min(focus)
-        x1 = numpy.max(focus)
-        xs = numpy.linspace(x0 - 0.1 * (x1 - x0), x1 + 0.1 * (x1 - x0))
-        ys = a * xs**2 + b * xs + c
-        ax.plot(
-            xs,
-            ys,
-            lw=1.0,
-            label=f"Camera {camera}",
-        )
+    return (a, b, c)
 
-    best = numpy.array(best)
-    best -= best[2]
-    best *= 7.25
-    print(numpy.round(best, 2))
 
-    ax.legend()
+def plot_focus_curve(data: pandas.DataFrame, fit_coeffs: tuple[float, float, float]):
+    """Plots the data and parabola."""
 
-    plt.show()
+    # Plot data.
+    fig, ax = plt.subplots(nrows=1, ncols=1)
+
+    ax.scatter(data.m2, data.fwhm, s=15, color="m", ec="None", alpha=0.5)
+
+    medians = calculate_median(data)
+    ax.errorbar(
+        medians.index,
+        medians.fwhm,
+        yerr=medians["std"],
+        fmt="o",
+        color="k",
+        alpha=0.3,
+    )
+
+    # Plot parabola.
+    a, b, c = fit_coeffs
+    xmin = numpy.min(data.m2)
+    xmax = numpy.max(data.m2)
+
+    xx = numpy.arange(xmin - 50, xmax + 50, 1)
+    yy = a * xx**2 + b * xx + c
+    best_m2 = -b / 2 / a
+
+    ax.plot(xx, yy, "r-")
+
+    ax.set_ylim(0.5, None)
+    ax.set_xlabel("M2 position")
+    ax.set_xlabel("FWHM [arcsec]")
+    ax.set_title(f"M2 position at best focus: {best_m2:.0f} microns")
+
+    return
 
 
 if __name__ == "__main__":
-    # collect_data()
-    analyse_data()
+    extract_data()
