@@ -128,13 +128,34 @@ def test_gaia_guiding(file: str | pathlib.Path):
     ax.set_ylim(0, 2048)
 
 
-async def test_cherno(mjd: int, frame_no: int):
+async def test_cherno(mjd: int):
 
-    files = pathlib.Path(f"/data/gcam/lco/{mjd}").glob(f"gimg-*-{frame_no:04d}.*")
+    path = pathlib.Path(
+        f"/uufs/chpc.utah.edu/common/home/sdss50/sdsswork/data/gcam/lco/{mjd}"
+    )
 
-    acq = Acquisition("LCO")
-    print(await acq.process(None, list(files), write_proc=False, correct=False))
+    max_frame_no = int(
+        str(list(sorted(path.glob("proc-*.fits")))[0]).split("-")[-1].split(".")[0]
+    )
+
+    for frame_no in range(1, max_frame_no + 1):
+        files = list(path.glob(f"gimg-*-{frame_no:04d}.*"))
+        if len(files) < 6:
+            continue
+
+        acq = Acquisition("LCO")
+        astronet = await acq.process(None, list(files), write_proc=False, correct=False)
+        gaia = await acq.process(
+            None,
+            list(files),
+            write_proc=False,
+            correct=False,
+            use_astrometry_net=False,
+        )
+
+        print(astronet, gaia)
+        break
 
 
 if __name__ == "__main__":
-    asyncio.run(test_cherno(59859, 150))
+    asyncio.run(test_cherno(59854))
