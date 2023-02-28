@@ -19,7 +19,6 @@ from astropy.io import fits
 from astropy.time import Time
 from matplotlib import pyplot as plt
 
-from cherno.acquisition import Acquisition
 from coordio.guide import cross_match, gfa_to_radec, radec_to_gfa
 from sdssdb.peewee.sdss5db import database
 
@@ -158,4 +157,4 @@ async def test_cherno(mjd: int):
 
 
 if __name__ == "__main__":
-    asyncio.run(test_cherno(59854))
+    asyncio.run(test_cherno(59860))

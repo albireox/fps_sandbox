@@ -60,7 +60,9 @@ async def send_command(tron: TronConnection, command: str, turn_off_lamps: bool 
 async def boss_hartmann():
 
     EXP_TIME = 10
-    STEP_SIZE = 50
+    N_STEPS = 10
+    STEP_SIZE = 75
+
     tron = await TronConnection("LCO.jose_script", "sdss5-hub").start()
 
     print("Turning lamps on.")
@@ -81,7 +83,7 @@ async def boss_hartmann():
                 f"yao mech move --absolute 1500 --motor {motor}",
             )
 
-        for step in range(0, 18):
+        for step in range(N_STEPS):
             absolute_value = 1500 + direction * STEP_SIZE * step
 
             print(f"\nMoving collimator to {absolute_value}")
@@ -110,5 +112,5 @@ async def boss_hartmann():
 
 
 if __name__ == "__main__":
-    asyncio.run(boss_calibs())
-    # asyncio.run(boss_hartmann())
+    # asyncio.run(boss_calibs())
+    asyncio.run(boss_hartmann())

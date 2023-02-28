@@ -105,8 +105,8 @@ setup.py
 
 .nox/
 
-fps_sandbox/data/lco
-fps_sandbox/results
-fps_sandbox/data/trajectories
+data/
+results
+inputs/
 
 pyrightconfig.json
