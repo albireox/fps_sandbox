@@ -8,8 +8,10 @@
 
 from __future__ import annotations
 
+import multiprocessing
 import pathlib
 
+import numpy
 import pandas
 import tqdm
 from astropy.io import fits
@@ -27,8 +29,10 @@ log = get_logger("fvc_epsf")
 log.sh.setLevel(5)
 
 
-def extract_cutouts(file: pathlib.Path | str, box_size=50):
+def extract_cutouts(file: pathlib.Path, box_size=50, plot=True):
     """Extract cutouts from an image."""
+
+    log.info(f"processing image {file.name}")
 
     hdus = fits.open(str(file))
     cutouts = fits.HDUList([fits.PrimaryHDU()])
@@ -49,7 +53,7 @@ def extract_cutouts(file: pathlib.Path | str, box_size=50):
         ]
 
         if len(in_box) > 1:
-            log.warning(f"skipping positionerID={pid}.")
+            # log.warning(f"skipping positionerID={pid}.")
             continue
 
         b2 = box_size // 2
@@ -63,7 +67,13 @@ def extract_cutouts(file: pathlib.Path | str, box_size=50):
 
         cutouts.append(cutout_hdu)
 
-    return cutouts
+    cutouts_path = file.parent / f"cutouts-{file.name}"
+    cutouts.writeto(cutouts_path, overwrite=True)
+
+    if plot:
+        plot_cutouts(cutouts_path)
+
+    return cutouts_path
 
 
 def plot_cutouts(file: pathlib.Path):
@@ -128,6 +138,26 @@ def plot_cutouts(file: pathlib.Path):
     log.debug(f"Saved cutouts plot {plot_file.name}")
 
 
+def _create_one_epsf(args: tuple[int, list[numpy.ndarray]]):
+    """Calculates the EPSF for one positioner."""
+
+    posid, cutouts = args
+
+    epsf_stars = EPSFStars(
+        [
+            EPSFStar(
+                hdu.data,
+                cutout_center=(hdu.data.shape[1] // 2, hdu.data.shape[0] // 2),
+            )
+            for hdu in cutouts
+        ]
+    )
+    epsf_builder = EPSFBuilder(oversampling=4, maxiters=5, progress_bar=False)
+    epsf, fitted_stars = epsf_builder(epsf_stars)
+
+    return (posid, epsf, fitted_stars)
+
+
 def create_epsf(images: list[pathlib.Path]):
     """Create EPSF for each positioner."""
 
@@ -140,24 +170,15 @@ def create_epsf(images: list[pathlib.Path]):
                 positioner_to_cutouts[posid] = []
             positioner_to_cutouts[posid].append(hdu)
 
+    log.info("Fitting EPSF to FVC data.")
+
+    with multiprocessing.Pool(16) as pool:
+        epsf_fits = pool.imap(_create_one_epsf, positioner_to_cutouts.items())
+
     epsfs: dict[int, EPSFModel] = {}
     epsf_fitted_stars: dict[int, EPSFStars] = {}
 
-    log.info("Fitting EPSF to FVC data.")
-
-    for posid in tqdm.tqdm(list(positioner_to_cutouts)):
-        cutouts = positioner_to_cutouts[posid]
-        epsf_stars = EPSFStars(
-            [
-                EPSFStar(
-                    hdu.data,
-                    cutout_center=(hdu.data.shape[1] // 2, hdu.data.shape[0] // 2),
-                )
-                for hdu in cutouts
-            ]
-        )
-        epsf_builder = EPSFBuilder(oversampling=4, maxiters=5, progress_bar=False)
-        epsf, fitted_stars = epsf_builder(epsf_stars)
+    for posid, (epsf, fitted_stars) in epsf_fits:
         epsfs[posid] = epsf
         epsf_fitted_stars[posid] = fitted_stars
 
@@ -177,15 +198,9 @@ def calculate_epsf():
     files = sorted(pathlib.Path(PATH).glob("proc-fimg-*.fits"))
 
     cutout_images: list[pathlib.Path] = []
-    for file in files:
-        log.info(f"processing image {file.name}")
-        cutouts = extract_cutouts(file)
 
-        cutouts_path = file.parent / f"cutouts-{file.name}"
-        cutouts.writeto(cutouts_path, overwrite=True)
-        cutout_images.append(cutouts_path)
-
-        plot_cutouts(cutouts_path)
+    with multiprocessing.Pool(16) as pool:
+        cutout_images = pool.imap(extract_cutouts, files)
 
     create_epsf(cutout_images)
 
