@@ -22,10 +22,8 @@ GIMG_DATA = pathlib.Path(f"/data/gcam/{MJD}")
 
 
 def get_gimg_data():
-
     data = []
     for file in tqdm.tqdm(list(GIMG_DATA.glob("proc-*.fits"))):
-
         match = re.match(r"proc-gimg-gfa(\d)n-(\d+)\.fits", str(file.name))
         if match:
             camera = int(match.group(1))

@@ -15,11 +15,10 @@ import numpy
 import pandas
 import tqdm
 from astropy.io import fits
-from astropy.modeling.fitting import LevMarLSQFitter
 from astropy.visualization import simple_norm
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
-from photutils.psf import EPSFBuilder, EPSFModel, EPSFStar, EPSFStars
+from photutils.psf import EPSFBuilder, EPSFStar, EPSFStars
 
 from sdsstools import get_logger
 

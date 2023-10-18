@@ -22,7 +22,6 @@ RESULTS = pathlib.Path(os.path.dirname(__file__)) / "../results"
 
 
 def fix_fvc_image_path():
-
     data = pandas.read_csv(RESULTS / "confSummaryF_images.csv")
 
     summary_files = pathlib.Path(SDSSCORE_DIR / "apo/summary_files")
@@ -52,7 +51,6 @@ def fix_fvc_image_path():
 
 
 def fix_swapped_fibres():
-
     summary_files = pathlib.Path(SDSSCORE_DIR / "apo/summary_files")
     files = summary_files.glob("**/confSummary*.par")
 

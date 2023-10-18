@@ -39,7 +39,6 @@ RESULTS.mkdir(parents=True, exist_ok=True)
 
 
 def get_biases():
-
     tables = [list_exposures(f"{BASE_PATH}/{mjd}") for mjd in LCO_MJDS_BIAS]
 
     exposures = table.vstack(tables)
@@ -50,13 +49,11 @@ def get_biases():
 
 
 def get_perc98(data: numpy.ndarray):
-
     sigclip = SigmaClip(2.5)
     return numpy.percentile(sigclip(data, masked=False), 98)
 
 
 def _multiprocess_bias(exp):
-
     jMid = SHAPE[0] // 2
     iMid = SHAPE[1] // 2
 
@@ -78,7 +75,6 @@ def _multiprocess_bias(exp):
 
 
 def plot_bias_readnoise():
-
     biases = get_biases()
 
     for camera in ["r2", "b2"]:
@@ -99,7 +95,6 @@ def plot_bias_readnoise():
         fg.map_dataframe(seaborn.scatterplot, x="expno", y="percentile98")
 
         for ii in range(5):
-
             if ii == 0:
                 section = "global"
             else:

@@ -7,7 +7,6 @@ from pymodbus.client.sync import ModbusTcpClient
 
 
 def get_chiller_data(variables_file: str):
-
     variables = pandas.read_csv(variables_file)
 
     data = []

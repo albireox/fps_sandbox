@@ -10,12 +10,12 @@ import asyncio
 import os
 import sys
 
-from fps_sandbox.osu.check_layout import prepare_layout_data
 from jaeger import FPS
+
+from fps_sandbox.osu.check_layout import prepare_layout_data
 
 
 async def check_buses(data):
-
     fps = await FPS.create()
 
     n_bus = {ii: [0, 0, 0, 0] for ii in range(1, 7)}
@@ -34,17 +34,20 @@ async def check_buses(data):
         iface, bus = fps[pid].get_bus()
 
         if p_data.Sextant != iface + 1:
-            print(f"Positioner {pid}. Mismatch layout (sextant, bus) "
-                  f"({p_data.Sextant}, {p_data.CAN}) with measured "
-                  f"({iface+1}, {bus}).")
+            print(
+                f"Positioner {pid}. Mismatch layout (sextant, bus) "
+                f"({p_data.Sextant}, {p_data.CAN}) with measured "
+                f"({iface+1}, {bus})."
+            )
         elif p_data.CAN != bus:
-            print(f"Positioner {pid}. Mismatch layout (sextant, bus) "
-                  f"({p_data.Sextant}, {p_data.CAN}) with measured "
-                  f"({iface+1}, {bus}).")
+            print(
+                f"Positioner {pid}. Mismatch layout (sextant, bus) "
+                f"({p_data.Sextant}, {p_data.CAN}) with measured "
+                f"({iface+1}, {bus})."
+            )
 
 
 if __name__ == "__main__":
-
     if len(sys.argv) > 1:
         data_file = sys.argv[1]
     else:

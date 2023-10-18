@@ -10,7 +10,6 @@ import asyncio
 import os
 
 import numpy
-
 from jaeger import FPS, log
 
 from fps_sandbox.osu.check_layout import prepare_layout_data
@@ -20,7 +19,6 @@ log.sh.setLevel(20)
 
 
 async def main():
-
     data_file = os.path.join(
         os.path.dirname(__file__),
         "../data/SloanFPS_HexArray_2021July23.csv",
@@ -57,7 +55,7 @@ async def main():
         555,
         615,
         772,
-        586
+        586,
     ]
 
     min_beta = 165
@@ -70,7 +68,6 @@ async def main():
 
     n_moves = 1
     while True:
-
         connected = list(fps.keys())
 
         for sub in [1, 2]:

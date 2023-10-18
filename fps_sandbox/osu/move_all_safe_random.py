@@ -9,7 +9,6 @@
 import asyncio
 
 import numpy
-
 from jaeger import FPS, log
 
 
@@ -17,7 +16,6 @@ log.sh.setLevel(20)
 
 
 async def main():
-
     fps = await FPS.create()
 
     min_beta = 165
@@ -25,11 +23,10 @@ async def main():
 
     ii = 1
     while True:
-
         positioners = list(fps.keys())
 
         bad = []
-         
+
         for pbad in bad:
             if pbad in positioners:
                 positioners.remove(pbad)

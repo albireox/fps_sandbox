@@ -23,10 +23,10 @@ import seaborn
 from astropy.io.fits import getheader
 from astropy.time import Time, TimeDelta
 from astropy.wcs import WCS, FITSFixedWarning
+from cherno.utils import gfa_to_wok, umeyama
 from matplotlib.backends.backend_pdf import PdfPages
 from rich.progress import Progress
 
-from cherno.utils import gfa_to_wok, umeyama
 from coordio import calibration
 from coordio.defaults import PLATE_SCALE
 from coordio.utils import radec2wokxy
@@ -215,10 +215,8 @@ MJDS = [59810, 59811]
 
 
 def check_internal_gfa_fit(mjds: list[int]):
-
     with Progress() as progress:
         for mjd in range(mjds[0], mjds[1] + 1):
-
             outpath = RESULTS / (str(mjd) + ".hdf")
             if outpath.exists():
                 continue
@@ -276,10 +274,8 @@ def check_internal_gfa_fit(mjds: list[int]):
 
 
 def plot_fits(MJDS: list[int]):
-
     with PdfPages(RESULTS / "gimg_mjd_fit.pdf") as pdf:
         for mjd in range(MJDS[0], MJDS[1] + 1):
-
             data: pandas.DataFrame = pandas.read_hdf(RESULTS / (str(mjd) + ".hdf"))
             # data = data.loc[data.rms < 10.0]
             data = data.sort_index()
@@ -288,7 +284,6 @@ def plot_fits(MJDS: list[int]):
             fig, axes = plt.subplots(3, 1, sharex=True, figsize=(14, 8))
 
             for ii, ax in enumerate(axes):
-
                 if ii == 0:
                     y = "delta_ra"
                 elif ii == 1:
@@ -327,10 +322,8 @@ def plot_fits(MJDS: list[int]):
 
 
 def analyse_fits(MJDS: list[int]):
-
     dataset: list[pandas.DataFrame] = []
     for mjd in range(MJDS[0], MJDS[1] + 1):
-
         data: pandas.DataFrame = pandas.read_hdf(RESULTS / (str(mjd) + ".hdf"))
         # data = data.loc[data.rms < 10.0]
         data["mjd"] = mjd
@@ -348,7 +341,6 @@ def analyse_fits(MJDS: list[int]):
     fig, axes = plt.subplots(3, 1, sharex=True, figsize=(14, 8))
 
     for ii, ax in enumerate(axes):
-
         if ii == 0:
             y = "delta_ra"
         elif ii == 1:
@@ -390,7 +382,6 @@ def calculate_offsets(
     apply_to_gfa_coords: bool = False,
     direction: str = "+",
 ):
-
     data = data.reset_index().set_index("seq_no")
 
     data["best_delta_xwok"] = data.groupby("seq_no").apply(

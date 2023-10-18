@@ -9,12 +9,10 @@
 import asyncio
 
 from astropy.table import Table
-
 from jaeger import FPS
 
 
 async def main():
-
     fps = await FPS.create()
 
     alpha_hall_calib = (await fps.send_command("GET_ALPHA_HALL_CALIB")).get_values()

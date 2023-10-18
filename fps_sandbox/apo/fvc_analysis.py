@@ -305,7 +305,6 @@ def concat_all(filter: bool = True):
 
 
 if __name__ == "__main__":
-
     for mjd in track(list(range(59543, 59655)), description="MJD"):
         collect_fvc_data(mjd, overwrite=True)
         # plot_histograms(mjd, overwrite=True)

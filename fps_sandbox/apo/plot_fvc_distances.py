@@ -45,10 +45,8 @@ def _plot_wok_distance(
     ax: plt.Axes,
     is_dither: bool = False,
 ):
-
     colours = ["g", "r", "b"]
     for ii, fibre in enumerate(["Metrology", "APOGEE", "BOSS"]):
-
         data_fibre = data_F.loc[pandas.IndexSlice[:, fibre.upper()], :].copy()
 
         if fibre != "Metrology" and is_dither is False:
@@ -95,7 +93,6 @@ def _plot_sky_distance(
     plot_metrology: bool = True,
     title: str = "Sky distance",
 ):
-
     colours = ["g", "r", "b"]
     for ii, fibre in enumerate(["Metrology", "APOGEE", "BOSS"]):
         if fibre == "Metrology" and not plot_metrology:
@@ -139,11 +136,9 @@ def _plot_sky_distance(
 
 
 def _plot_sky_quiver(data_F: pandas.DataFrame, ax: plt.Axes, is_dither: bool = False):
-
     colours = ["r", "b"]
     key = False
     for ii, fibre in enumerate(["APOGEE", "BOSS"]):
-
         data_fibre = data_F.loc[pandas.IndexSlice[:, fibre.upper()], :].copy()
 
         if is_dither is False:
@@ -182,7 +177,6 @@ def _plot_sky_quiver(data_F: pandas.DataFrame, ax: plt.Axes, is_dither: bool = F
 
 
 def plot_fvc_distances(configuration_id: int):
-
     cid_path_xx = SDSSCORE_DIR / f"{int(configuration_id / 100):04d}XX"
 
     cid_path = cid_path_xx / f"confSummary-{configuration_id}.par"
@@ -255,6 +249,5 @@ def plot_fvc_distances(configuration_id: int):
 
 
 if __name__ == "__main__":
-
     for configuration_id in CONFIGURATION_IDS:
         plot_fvc_distances(configuration_id)

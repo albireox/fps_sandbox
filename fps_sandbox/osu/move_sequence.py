@@ -10,14 +10,12 @@ import asyncio
 import os
 import sys
 
-import numpy
+from jaeger import FPS
 
 from fps_sandbox.osu.check_layout import prepare_layout_data
-from jaeger import FPS
 
 
 async def move_sequence(data):
-
     fps = await FPS.create()
 
     # alpha = numpy.array([p.alpha for p in fps.values()])
@@ -36,7 +34,7 @@ async def move_sequence(data):
     #     err_msg="Beta should be 180 for all positioners",
     # )
 
-    data = data.sort_values(['Row', 'Column'], ascending=[True, True])
+    data = data.sort_values(["Row", "Column"], ascending=[True, True])
 
     for pid, pid_data in data.iterrows():
         if pid_data.Row < 11:
@@ -47,7 +45,6 @@ async def move_sequence(data):
 
 
 if __name__ == "__main__":
-
     if len(sys.argv) > 1:
         data_file = sys.argv[1]
     else:

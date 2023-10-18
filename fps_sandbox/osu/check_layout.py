@@ -14,15 +14,11 @@ import asyncio
 import os
 import sys
 
-import numpy
-import numpy.testing
 import pandas
-
 from jaeger import FPS
 
 
 def prepare_layout_data(data_file):
-
     data = pandas.read_csv(data_file)
 
     # Select positioners only.
@@ -39,7 +35,6 @@ def prepare_layout_data(data_file):
 
 
 async def check_layout(data_file):
-
     data = prepare_layout_data(data_file)
     print(data)
 
@@ -56,14 +51,16 @@ async def check_layout(data_file):
 
     for pid in fps.positioners:
         if pid not in data.Device:
-            print(f'Positioner {pid} is connected but not on the layout.')
+            print(f"Positioner {pid} is connected but not on the layout.")
 
     for pid in data.Device:
         if pid not in fps.positioners:
             p = data.loc[pid]
             row = p.Row
             col = p.Column
-            print(f'Positioner {pid} (R{row}C{col}) is in the layout but not connected.')
+            print(
+                f"Positioner {pid} (R{row}C{col}) is in the layout but not connected."
+            )
 
     # alpha = numpy.array([p.alpha for p in fps.values()])
     # beta = numpy.array([p.beta for p in fps.values()])
@@ -90,7 +87,6 @@ async def check_layout(data_file):
 
 
 if __name__ == "__main__":
-
     if len(sys.argv) > 1:
         data_file = sys.argv[1]
     else:

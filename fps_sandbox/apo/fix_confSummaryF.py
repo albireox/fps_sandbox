@@ -67,7 +67,6 @@ def fix_confSummaryF(configuration_ids: list[int], replace_original: bool = Fals
         scale = float(y["focal_scale"])
 
         for row in fibermap:
-
             # Up to wok coordinates everything is AOK.
             xwok = row["xwok"]
             ywok = row["ywok"]
@@ -96,7 +95,6 @@ def fix_confSummaryF(configuration_ids: list[int], replace_original: bool = Fals
 
 
 def fix_from_positioner_table(replace_original: bool = False):
-
     INPUT_DIR = pathlib.Path(__file__).parent / "../inputs/confReprocess"
     RESULTS = pathlib.Path(__file__).parent / "../results"
 
@@ -132,7 +130,6 @@ def fix_from_positioner_table(replace_original: bool = False):
         scale = float(y["focal_scale"])
 
         for row in fibermap:
-
             holeID = row["holeId"].decode()
             ftype = row["fiberType"].decode()
 

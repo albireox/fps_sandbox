@@ -10,11 +10,9 @@
 import asyncio
 from time import time
 
-import numpy
 import pandas
 import seaborn
 from astropy.io import fits
-from matplotlib import pyplot as plt
 
 from coordio import PositionerMetrology, Site, Tangent, Wok
 from coordio.conv import (
@@ -38,7 +36,6 @@ seaborn.set_theme()
 
 
 def create_dataframe():
-
     hdus = fits.open(FILE)
 
     measured = pandas.DataFrame(hdus["MEASURED"].data.newbyteorder().byteswap())
@@ -50,7 +47,6 @@ def create_dataframe():
 
 
 def to_positioner():
-
     data: pandas.DataFrame = pandas.read_hdf(FILE_h5).set_index("holeID")
     positionerTable.set_index("positionerID", inplace=True)
 
@@ -119,7 +115,6 @@ def to_positioner():
 
 
 def cycle_from_positioner():
-
     data: pandas.DataFrame = pandas.read_hdf(FILE_h5).set_index("holeID")
 
     site = Site("APO")
@@ -157,9 +152,8 @@ def cycle_from_positioner():
 
 
 async def test_design(design_id):
+    from jaeger.design import targetdb
     from peewee_async import Manager
-
-    from jaeger.design import Design, targetdb
 
     def test(database):
         obj = Manager(targetdb.database)

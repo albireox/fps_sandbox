@@ -30,7 +30,6 @@ warnings.filterwarnings("ignore", category=FITSFixedWarning)
 
 
 def calculate_limiting_magnitude(file_: pathlib.Path | str):
-
     file_ = pathlib.Path(file_)
 
     if not file_.name.startswith("proc-"):
@@ -118,7 +117,6 @@ def _call_func(file_):
 
 
 def mjd_run(mjd: int, path: str | None = None):
-
     procs = list((pathlib.Path(path or "/data/gcam") / f"{mjd}").glob("proc-*.fits"))
 
     with Pool(8) as pool:

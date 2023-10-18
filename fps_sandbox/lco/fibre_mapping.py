@@ -20,7 +20,6 @@ matplotlib.use("agg")
 
 
 def plot_data():
-
     DIR = "/Users/gallegoj/Downloads/59818/"
     MTP_FILES = {
         1: "proc-fimg-fvc1s-0003.fits",
@@ -42,7 +41,6 @@ def plot_data():
     fa = fa.loc[~fa.LongLinkMTP.isna()]
 
     for mtp, file_ in MTP_FILES.items():
-
         path = DIR + "/" + file_
 
         data = fits.getdata(path, 1).astype("f8")

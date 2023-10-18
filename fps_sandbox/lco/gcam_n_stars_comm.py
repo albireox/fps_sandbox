@@ -33,7 +33,6 @@ assert tdb.database.connected
 
 
 def get_comm_designs():
-
     designs = (
         tdb.Design.select(
             tdb.Design.design_id,

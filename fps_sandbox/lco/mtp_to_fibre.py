@@ -39,7 +39,6 @@ def mtp_to_fibre_lco():
 
 
 def update_fiberAssignments(file_: pathlib.Path | str | None = None):
-
     if file_ is None:
         fa = calibration.fiberAssignments.copy().reset_index()
     else:

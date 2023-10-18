@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 import numpy
 import pandas
 import seaborn
-
 from jaeger.target.configuration import AssignmentData
 from jaeger.target.design import Design
 from jaeger.target.tools import wok_to_positioner
@@ -30,7 +29,6 @@ def plot_residuals(
     filename: pathlib.Path,
     fibre: str | None = None,
 ):
-
     idx = pandas.IndexSlice
     if fibre:
         raw_data = raw_data.loc[idx[:, fibre], :].copy()
@@ -130,7 +128,6 @@ def simulate_fvc_data(assignment_data: AssignmentData, wok_sigma: float = 0.001)
 
 
 def test_fibre_table(design_id: int, epoch: float):
-
     design = Design(design_id, epoch=epoch)
 
     raw_data = design.configuration.assignment_data.fibre_table.copy()
@@ -149,7 +146,6 @@ def test_fibre_table(design_id: int, epoch: float):
 
 
 def plot_wok_difference():
-
     raw_data = pandas.read_hdf(RESULTS / "raw_data.hdf")
     raw_data_orig = pandas.read_hdf(RESULTS / "raw_data_orig.hdf")
 

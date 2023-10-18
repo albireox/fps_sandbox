@@ -11,7 +11,6 @@ from __future__ import annotations
 import asyncio
 
 import numpy
-
 from jaeger import FPS, config
 from jaeger.exceptions import JaegerError, TrajectoryError
 from jaeger.target.tools import create_random_configuration
@@ -22,13 +21,11 @@ SAFE = False
 
 
 async def random_moves():
-
     seed = 19023
 
     fps = await FPS.create()
 
     for nn in range(N_MOVES):
-
         print("")
         print(f"Sending trajectory {nn+1}/{N_MOVES}")
 
@@ -89,5 +86,4 @@ async def random_moves():
 
 
 if __name__ == "__main__":
-
     asyncio.run(random_moves())

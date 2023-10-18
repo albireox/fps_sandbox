@@ -46,7 +46,6 @@ def create_dataframe(start_mjd: int = 59564, onlyF: bool = False):
     dithers = []
 
     for summary_file in track(summaryF_files + summary_files):
-
         isFVC = 1 if "confSummaryF" in str(summary_file) else 0
         if isFVC == 0 and onlyF:
             continue
@@ -306,7 +305,6 @@ def cycle_radec_wok(data: pandas.DataFrame, file1: str = None, file2: str = None
 
 
 def plot_cycle():
-
     data = pandas.read_hdf(os.path.join(RESULTS, "dither_data_fvc.h5"))
 
     conf_ids = range(500, max(data.index.get_level_values(0)))
@@ -435,7 +433,6 @@ def simulate_radec(racen: float = 105.0, deccen: float = 30.0, wave: str = "Apog
 
 
 def check_fvc_coords():
-
     data = pandas.read_hdf(RESULTS / "dither_data_fvc.h5")
 
     # Override xywok from xyFocal
@@ -535,7 +532,6 @@ def check_fvc_coords():
 
 
 if __name__ == "__main__":
-
     create_dataframe()
     # plot_cycle()
 

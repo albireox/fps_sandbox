@@ -27,7 +27,6 @@ TRAJECTORIES = pathlib.Path(__file__).parents[1] / "data" / "trajectories"
 
 
 def parse_trajectory(trajectory_file: pathlib.Path):
-
     data = json.loads(open(trajectory_file, "r").read())
     if data["success"]:
         return
@@ -61,7 +60,6 @@ def parse_trajectory(trajectory_file: pathlib.Path):
 
 
 def plot_velocity(data: dict, df: pandas.DataFrame):
-
     df = df.reset_index()
 
     vel_g = df.groupby(["positioner_id", "axis"])["velocity"]
@@ -96,7 +94,6 @@ def plot_velocity(data: dict, df: pandas.DataFrame):
 
 
 if __name__ == "__main__":
-
     files = sorted(TRAJECTORIES.glob("**/*.json"))
 
     for file in files:

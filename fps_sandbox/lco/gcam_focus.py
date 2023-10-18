@@ -59,7 +59,6 @@ def process_mjd(mjd: int):
     files = gcam.glob("gimg-gfa[1-6]s-[0-9][0-9][0-9][0-9].fits")
 
     with multiprocessing.Pool(4) as pool:
-
         data_list = pool.map(run_sep, files)
 
     data = pandas.concat(data_list)
@@ -126,7 +125,6 @@ def plot_focus(data: pandas.DataFrame):
     violin_fig.savefig(OUTPATH / f"violin_{mjd}.pdf")
 
     for camera in fwhm.camera.unique():
-
         # FWHM per camera.
         fwhm_camera = fwhm.loc[fwhm.camera == camera]
 

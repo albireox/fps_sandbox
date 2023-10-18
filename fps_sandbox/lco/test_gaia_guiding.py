@@ -29,7 +29,6 @@ warnings.filterwarnings("ignore", message="pandas only supports SQLAlchemy")
 
 
 def test_gaia_guiding(file: str | pathlib.Path):
-
     database.connect("sdss5db", user=None, hostname=None)
     assert database.connected, "Database is not connected"
 
@@ -128,7 +127,6 @@ def test_gaia_guiding(file: str | pathlib.Path):
 
 
 async def test_cherno(mjd: int):
-
     path = pathlib.Path(
         f"/uufs/chpc.utah.edu/common/home/sdss50/sdsswork/data/gcam/lco/{mjd}"
     )

@@ -19,10 +19,10 @@ from astropy import units as uu
 from astropy.coordinates import AltAz, Distance, EarthLocation, HADec, SkyCoord
 from astropy.time import Time
 from astropy.utils.exceptions import ErfaWarning
+from jaeger.target.tools import read_confSummary
 
 from coordio import ICRS, Field, FocalPlane, Observed, Site, Wok, sofa
 from coordio.defaults import INST_TO_WAVE
-from jaeger.target.tools import read_confSummary
 
 
 RESULTS = pathlib.Path(__file__).parents[1] / "results"
@@ -40,7 +40,6 @@ def wok_to_observed(
     scale: float,
     wavelength: float,
 ):
-
     site = Site("APO")
     site.set_time(obs_epoch)
     assert site.time
@@ -93,7 +92,6 @@ def check_configuration_refraction(configuration_id: int):
     )
 
     for fibre_type in data.index.get_level_values(1).unique():
-
         df = data.loc[pandas.IndexSlice[:, fibre_type], :]
 
         wavelength = 16600 if fibre_type == "APOGEE" else 5400
@@ -120,7 +118,6 @@ def check_configuration_refraction(configuration_id: int):
 
         observed = []
         for ii in range(len(df)):
-
             # SOFA
 
             ra_j2000_rad = ctypes.c_double()
@@ -301,5 +298,4 @@ def check_configuration_refraction(configuration_id: int):
 
 
 if __name__ == "__main__":
-
     check_configuration_refraction(5315)

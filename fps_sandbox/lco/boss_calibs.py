@@ -14,7 +14,6 @@ from clu.legacy import TronConnection
 
 
 async def boss_calibs():
-
     tron = await TronConnection("LCO.jose_script", "sdss5-hub").start()
 
     for nbias in range(1, 26):
@@ -48,7 +47,6 @@ async def off_lamps(tron: TronConnection):
 
 
 async def send_command(tron: TronConnection, command: str, turn_off_lamps: bool = True):
-
     cmd = await tron.send_command(command.split()[0], " ".join(command.split()[1:]))
     if cmd.status.did_fail:
         if turn_off_lamps:
@@ -58,7 +56,6 @@ async def send_command(tron: TronConnection, command: str, turn_off_lamps: bool 
 
 
 async def boss_hartmann():
-
     EXP_TIME = 10
     N_STEPS = 10
     STEP_SIZE = 75
@@ -74,7 +71,6 @@ async def boss_hartmann():
         await send_command(tron, f"yao mech open {door}")
 
     for direction in [1, -1]:
-
         print()
         for motor in ["a", "b", "c"]:
             print(f"Moving collimator motor {motor} back to 1500.")

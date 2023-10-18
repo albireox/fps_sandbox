@@ -22,7 +22,6 @@ RESULTS = pathlib.Path(__file__).parent / "../results"
 
 
 def compile_guider_data():
-
     proc_files = pathlib.Path("/data/gcam/").glob("595[6-9][0-9]/proc-*.fits")
 
     data = {}
@@ -56,7 +55,6 @@ def compile_guider_data():
 
 
 def plot_scale():
-
     data = pandas.read_hdf(RESULTS / "guider.hdf")
 
     data = data.dropna(subset=["deltascl", "date-obs", "airtemp"])
@@ -84,6 +82,5 @@ def plot_scale():
 
 
 if __name__ == "__main__":
-
     # compile_guider_data()
     plot_scale()

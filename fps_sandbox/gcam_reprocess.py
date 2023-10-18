@@ -17,10 +17,10 @@ import matplotlib.pyplot as plt
 import numpy
 import pandas
 from astropy.io import fits
-from tqdm import tqdm
-
 from cherno import config, set_observatory
 from cherno.acquisition import Acquisition
+from tqdm import tqdm
+
 from coordio import calibration
 from coordio.guide import umeyama
 
@@ -34,7 +34,6 @@ async def gcam_reprocess(
     gcam_root: pathlib.Path | str = "/data/gcam",
     observatory: str | None = None,
 ):
-
     gcam_root = pathlib.Path(gcam_root)
     path = gcam_root / f"{mjd}"
 
@@ -49,7 +48,6 @@ async def gcam_reprocess(
     acq.command.log.setLevel(100)  # type: ignore
 
     for frame_no in tqdm(range(1, max_frame_no + 1, step)):
-
         files = list(path.glob(f"proc-gimg-*-{frame_no:04d}.*"))
 
         if len(files) < 3:
@@ -174,7 +172,6 @@ async def get_wok_coordinates(
     use_astrometry_net: bool = True,
     use_gaia: bool = True,
 ):
-
     observatory = observatory.upper()
     gcam_root = pathlib.Path(gcam_root)
 
@@ -200,14 +197,12 @@ async def get_wok_coordinates(
 
     data = []
     for mjd in mjds:
-
         path = gcam_root / str(mjd)
 
         procs = path.glob("proc-gimg-*.fits")
         max_frame_no = int(str(list(sorted(procs))[-1]).split("-")[-1].split(".")[0])
 
         for frame_no in tqdm(range(1, max_frame_no + 1)):
-
             files = list(path.glob(f"proc-gimg-*-{frame_no:04d}.*"))
 
             if len(files) < 4:
@@ -241,7 +236,6 @@ async def get_wok_coordinates(
                 continue
 
             if astrometry.guider_fit is not None:
-
                 gfa_wok = astrometry.guider_fit.gfa_wok
                 astro_wok = astrometry.guider_fit.astro_wok
 
@@ -321,7 +315,6 @@ def generate_gfa_coords(
         raise ValueError("No current GFA coordinates found.")
 
     for gfa_id in sorted(data.gfa_id.unique()):
-
         cam_coords = gfa_coords.loc[gfa_id]
         current_cam_pos = cam_coords.loc[["xWok", "yWok"]].values[numpy.newaxis].T
 

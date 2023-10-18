@@ -26,7 +26,6 @@ DATA_FILE = pathlib.Path(RESULTS / "dither_data_fvc.h5")
 
 
 def create_dataframe():
-
     data = pandas.read_hdf(DATA_FILE)
 
     on_target = data.groupby(["configuration_id", "positionerId"]).filter(
@@ -58,7 +57,6 @@ def create_dataframe():
 
 
 def plot_all():
-
     data = pandas.read_hdf(RESULTS / "dither_data_fvc_parent.h5").reset_index()
     data["distance"] *= 1000.0
 

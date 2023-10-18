@@ -6,12 +6,12 @@
 # @Filename: move_beta_continuous.py
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
-from jaeger import FPS
 import asyncio
+
+from jaeger import FPS
 
 
 async def main():
-
     fps = await FPS.create()
 
     alpha = 360

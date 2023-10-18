@@ -15,7 +15,6 @@ from astropy.io import fits
 
 
 def plot_quickred():
-
     RANGE = range(39990016, 39990035)
 
     all_data = []

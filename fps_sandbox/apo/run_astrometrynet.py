@@ -26,7 +26,6 @@ DIRECTORIES = ["/data/gcam/59551/", "/data/gcam/59552/"]
 
 
 def process_image(image, outdir, sigma=10, min_npix=50):
-
     path = pathlib.Path(image)
     mjd = path.parts[-2]
     basename = path.parts[-1]
@@ -84,7 +83,6 @@ def process_image(image, outdir, sigma=10, min_npix=50):
 
 
 def run_astrometry(image, outdir):
-
     path = pathlib.Path(image)
     mjd = path.parts[-2]
     basename = path.parts[-1]
@@ -147,7 +145,6 @@ def run_astrometry(image, outdir):
 
 
 if __name__ == "__main__":
-
     for directory in DIRECTORIES:
         images = sorted(glob(os.path.join(directory, "*.fits")))
         for image in images:

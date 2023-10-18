@@ -19,7 +19,6 @@ from coordio.defaults import INST_TO_WAVE
 
 
 def fix_coordinates():
-
     mjds = [59600, 59601]
 
     sdsscore_dir = pathlib.Path(os.environ["SDSSCORE_DIR"]) / "apo/summary_files"

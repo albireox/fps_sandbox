@@ -36,7 +36,6 @@ def gcam_ron_data(path):
     s = SigmaClip(1)
 
     for file_ in list(sorted(all_files))[0::5]:
-
         data: Any = fits.getdata(str(file_), 1)
         data = data.astype("f8")
 

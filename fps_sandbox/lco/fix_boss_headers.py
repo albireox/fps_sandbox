@@ -7,14 +7,15 @@
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 from __future__ import annotations
-from glob import glob
-from astropy.io import fits
-from shutil import copy
+
 import os
+from glob import glob
+from shutil import copy
+
+from astropy.io import fits
 
 
 def fix_boss_headers():
-
     MJD = 59855
 
     path = f"/data/spectro/{MJD}"
@@ -48,7 +49,6 @@ def fix_boss_headers():
     ]
 
     for file in glob(path + "/*.fit.gz"):
-
         copy_file = outpath + f"/{os.path.basename(file)}"
         copy(file, copy_file)
 

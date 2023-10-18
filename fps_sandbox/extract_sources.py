@@ -29,7 +29,6 @@ from coordio.guide import gfa_to_radec
 
 
 def _get_dark_APO(exptime: float, gfa_id: int):
-
     PATH = "/data/gcam/apo/calibration/gimg-gfa{gfa_id}n-{frame_no}.fits"
 
     if exptime == 15:
@@ -50,7 +49,6 @@ def _get_dark_APO(exptime: float, gfa_id: int):
 
 
 def _get_dark_LCO_59878(exptime: float, gfa_id: int):
-
     PATH = "/data/gcam/lco/calibration/59878/gimg-gfa{gfa_id}s-{frame_no:04d}.fits"
 
     files = [
@@ -65,7 +63,6 @@ def _get_dark_LCO_59878(exptime: float, gfa_id: int):
 
 
 def _get_dark_LCO_59879(exptime: float, gfa_id: int):
-
     PATH = "/data/gcam/lco/calibration/59879/gimg-gfa{gfa_id}s-{frame_no:04d}.fits"
 
     if exptime == 15:
@@ -85,7 +82,6 @@ def _get_dark_LCO_59879(exptime: float, gfa_id: int):
 
 
 def _process_one(output: pathlib.Path, file_: pathlib.Path | str, plot: bool = False):
-
     file_ = pathlib.Path(file_)
 
     data = fits.getdata(str(file_)).astype("f8")
@@ -141,7 +137,6 @@ def collate_data(path: pathlib.Path | str, mjd: int | None = None):
 
     data = []
     for file_ in files:
-
         if frame_no_group := re.search(r"\-([0-9]{4})\.csv", str(file_)):
             frame_no = int(frame_no_group.group(1))
         else:
@@ -249,7 +244,6 @@ def add_gaia_mags(
     files = list(sorted(pathlib.Path(csv_path).glob("*.csv")))
 
     for file in tqdm(files):
-
         if "gaia" in file.name:
             continue
 
@@ -333,7 +327,6 @@ def add_gaia_mags(
 
 
 if __name__ == "__main__":
-
     files = list(pathlib.Path(sys.argv[1]).glob("proc-gimg-*"))
     extract_sources(files, output="./59876_t5", plot=False)
 

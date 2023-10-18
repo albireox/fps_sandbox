@@ -24,7 +24,6 @@ FILE = "../data/astrometry_fit_59560.csv"
 
 
 def plot_guide_loop():
-
     data = pandas.read_csv(os.path.join(os.path.dirname(__file__), FILE))
 
     fig, axes = plt.subplots(3, figsize=(15, 8))

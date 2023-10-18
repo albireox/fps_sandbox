@@ -16,8 +16,8 @@ import numpy
 import pandas
 import seaborn
 from astropy.io import fits
-
 from cherno.acquisition import Acquisition
+
 from coordio.defaults import PLATE_SCALE
 
 
@@ -30,7 +30,6 @@ MJD = 59560
 
 
 async def reprocess_gimg():
-
     mjd_dir = DATA / str(MJD)
     files = list(mjd_dir.glob("gimg-*[0-9].fits"))
 
@@ -113,7 +112,6 @@ async def reprocess_gimg():
 
 
 def plot_gimg_rms():
-
     data = pandas.read_hdf(RESULTS / f"gimg_rms_{MJD}.h5", "data")
 
     plate_scale = PLATE_SCALE["APO"]
@@ -157,7 +155,6 @@ def plot_gimg_rms():
 
 
 if __name__ == "__main__":
-
     import asyncio
 
     asyncio.run(reprocess_gimg())

@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 import numpy
 import pandas
 import seaborn
-
 from jaeger.target.tools import read_confSummary
 
 
@@ -32,7 +31,6 @@ def check_robot_dither_distribution(
     flavour_parent: str = "",
     flavour_dither: str = "",
 ):
-
     RESULTS.mkdir(exist_ok=True, parents=True)
 
     header, parent = read_confSummary(parent_id, flavour=flavour_parent)
@@ -131,7 +129,6 @@ def check_robot_dither_distribution(
 
 
 def check_fibre_separation(parent_id: int, dither_id: int):
-
     for config_id in [parent_id, dither_id]:
         _, data = read_confSummary(config_id)
 
@@ -178,7 +175,6 @@ def check_fibre_separation(parent_id: int, dither_id: int):
 
 
 if __name__ == "__main__":
-
     # check_fibre_separation(5203, 5204)
 
     for parent_id in range(5203, 5222, 2):

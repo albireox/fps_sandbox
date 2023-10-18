@@ -19,7 +19,6 @@ SEQ = 508
 
 
 async def test_focus_fit():
-
     path = pathlib.Path(f"/data/gcam/{MJD}")
 
     t0 = time()

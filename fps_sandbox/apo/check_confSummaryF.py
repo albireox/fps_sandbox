@@ -18,11 +18,11 @@ import pandas
 import pandas.plotting
 import seaborn
 from astropy.time import Time
+from jaeger.target.tools import positioner_to_wok, wok_to_positioner
 from pydl.pydlutils.sdss import yanny
 
 from coordio import ICRS, Field, FocalPlane, Observed, Site, Wok
 from coordio.defaults import INST_TO_WAVE
-from jaeger.target.tools import positioner_to_wok, wok_to_positioner
 
 
 matplotlib.use("MacOSX")
@@ -33,7 +33,6 @@ SDSSCORE_DIR = pathlib.Path(os.environ["SDSSCORE_DIR"])
 
 
 def read_confSummary(path: str | pathlib.Path, return_yanny: bool = False) -> tuple:
-
     y = yanny(str(path))
     header = dict(y)
 
@@ -61,7 +60,6 @@ def read_confSummary(path: str | pathlib.Path, return_yanny: bool = False) -> tu
 
 
 def check_confSummaryF():
-
     path = SDSSCORE_DIR / "apo" / "summary_files" / "0048XX"
     file_ = path / "confSummary-4888.par"
     fileF_ = path / "confSummaryF-4888.par"
@@ -139,7 +137,6 @@ def check_confSummaryF():
 
 
 def check_coordinates():
-
     OUTPUT_DIR = RESULTS / "fvc_coordinates"
     OUTPUT_DIR.mkdir(exist_ok=True)
 
@@ -173,7 +170,6 @@ def check_coordinates():
     obs_bore = Observed(ics_bore, site=site, wavelength=INST_TO_WAVE["GFA"])
 
     for idx, row in assigned.iterrows():
-
         positionerId, fiberType = idx  # type: ignore
 
         pmra = row.pmra if row.pmra > -999.0 else 0

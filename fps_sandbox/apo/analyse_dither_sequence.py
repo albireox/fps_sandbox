@@ -72,8 +72,8 @@ def plot_parent_wok():
                 diff_data.append((ii, "ywok", row.ywok_measured))
 
                 brow = base_df.iloc[nn]
-                r = numpy.sqrt(brow.xwok_measured ** 2 + brow.ywok_measured ** 2)
-                dist = numpy.sqrt(row.xwok_measured ** 2 + row.ywok_measured ** 2)
+                r = numpy.sqrt(brow.xwok_measured**2 + brow.ywok_measured**2)
+                dist = numpy.sqrt(row.xwok_measured**2 + row.ywok_measured**2)
                 radial_data.append((ii, r, dist))
 
             ax.scatter(
@@ -82,7 +82,7 @@ def plot_parent_wok():
                 marker=".",
                 s=5,
                 edgecolor="None",
-                c=numpy.sqrt(df.xwok_measured ** 2 + df.ywok_measured ** 2),
+                c=numpy.sqrt(df.xwok_measured**2 + df.ywok_measured**2),
             )
 
     ax.set_xlim(-0.1, 0.1)
