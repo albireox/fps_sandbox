@@ -22,6 +22,7 @@ seaborn = ">=0.12.0"
 tqdm = ">=4.62.3"
 rich = ">=11.2.0"
 photutils = "^1.7.0"
+pyarrow = "^14.0.1"
 
 [tool.poetry.dev-dependencies]
 ipython = ">=8.0.0"
@@ -42,20 +43,31 @@ nox = ">=2021.6.12"
 sphinx-autobuild = ">=2021.3.14"
 sphinx-copybutton = ">=0.3.3"
 pandas-stubs = ">=1.2.0"
+ruff = ">0.1.0"
 
 [tool.black]
 line-length = 88
 target-version = ['py39']
 fast = true
 
-[tool.isort]
-profile = "black"
-sections = ["FUTURE", "STDLIB", "TYPING", "THIRDPARTY", "SDSS", "FIRSTPARTY", "LOCALFOLDER"]
-default_section = "THIRDPARTY"
-known_first_party = "osu"
-known_typing = ["typing"]
-known_sdss = ["sdsstools", "clu", "sdssdb", "drift", "jaeger", "coordio", "kaiju", "cherno"]
-lines_after_imports = 2
+[tool.ruff]
+line-length = 88
+target-version = 'py311'
+select = ["E", "F", "I"]
+unfixable = ["F841"]
+exclude = ["typings/"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401", "F403", "E402"]
+
+[tool.ruff.isort]
+known-first-party = ["fps_calibrations"]
+lines-after-imports = 2
+section-order = ["future", "standard-library", "typing", "third-party", "sdss", "first-party", "local-folder"]
+
+[tool.ruff.isort.sections]
+typing = ["typing"]
+sdss = ["sdsstools", "clu", "sdssdb", "drift", "jaeger", "coordio", "kaiju", "cherno"]
 
 [build-system]
 requires = ["poetry-core>=1.1.0a7"]
