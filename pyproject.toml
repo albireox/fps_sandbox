@@ -41,11 +41,7 @@ nox = ">=2021.6.12"
 sphinx-autobuild = ">=2021.3.14"
 sphinx-copybutton = ">=0.3.3"
 pandas-stubs = ">=1.2.0"
-<<<<<<< HEAD
-ruff = ">0.1.0"
-=======
 ruff = ">=0.1.0"
->>>>>>> b409e14 (Use ruff)
 
 [tool.black]
 line-length = 88
@@ -63,21 +59,13 @@ exclude = ["typings/"]
 "__init__.py" = ["F401", "F403", "E402"]
 
 [tool.ruff.isort]
-<<<<<<< HEAD
-known-first-party = ["fps_calibrations"]
-=======
 known-first-party = ["fps_sandbox"]
->>>>>>> b409e14 (Use ruff)
 lines-after-imports = 2
 section-order = ["future", "standard-library", "typing", "third-party", "sdss", "first-party", "local-folder"]
 
 [tool.ruff.isort.sections]
 typing = ["typing"]
-<<<<<<< HEAD
 sdss = ["sdsstools", "clu", "sdssdb", "drift", "jaeger", "coordio", "kaiju", "cherno"]
-=======
-sdss = ["sdsstools", "clu", "sdssdb", "coordio", "kaiju", "fps_calibrations"]
->>>>>>> b409e14 (Use ruff)
 
 [build-system]
 requires = ["poetry-core>=1.1.0"]
