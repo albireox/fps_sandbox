@@ -19,11 +19,11 @@ import warnings
 
 import numpy
 import pandas
-from jaeger.target.tools import positioner_to_wok, wok_to_positioner
-from pydl.pydlutils.yanny import yanny
 
 from coordio import ICRS, Field, FocalPlane, Observed, Site, Wok, calibration
 from coordio.defaults import INST_TO_WAVE
+from jaeger.target.tools import positioner_to_wok, wok_to_positioner
+from sdsstools import yanny
 
 
 COMMON_DIR = "/uufs/chpc.utah.edu/common/home/"

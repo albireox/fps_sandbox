@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import numpy
 import pandas
 import seaborn
+
 from jaeger.target.configuration import AssignmentData
 from jaeger.target.design import Design
 from jaeger.target.tools import wok_to_positioner

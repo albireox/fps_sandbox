@@ -152,8 +152,9 @@ def cycle_from_positioner():
 
 
 async def test_design(design_id):
-    from jaeger.design import targetdb
     from peewee_async import Manager
+
+    from jaeger.design import targetdb
 
     def test(database):
         obj = Manager(targetdb.database)

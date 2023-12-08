@@ -19,10 +19,10 @@ from astropy import units as uu
 from astropy.coordinates import AltAz, Distance, EarthLocation, HADec, SkyCoord
 from astropy.time import Time
 from astropy.utils.exceptions import ErfaWarning
-from jaeger.target.tools import read_confSummary
 
 from coordio import ICRS, Field, FocalPlane, Observed, Site, Wok, sofa
 from coordio.defaults import INST_TO_WAVE
+from jaeger.target.tools import read_confSummary
 
 
 RESULTS = pathlib.Path(__file__).parents[1] / "results"

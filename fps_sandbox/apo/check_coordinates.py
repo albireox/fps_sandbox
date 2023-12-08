@@ -19,10 +19,10 @@ import pandas
 import seaborn
 from matplotlib import pyplot as plt
 from matplotlib.colors import Colormap
-from pydl.pydlutils.yanny import yanny
 from rich.progress import track
 
 from coordio.utils import radec2wokxy, wokxy2radec
+from sdsstools import yanny
 
 
 RESULTS = pathlib.Path(os.path.dirname(__file__)) / "../results"

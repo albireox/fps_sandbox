@@ -10,6 +10,7 @@ import asyncio
 import os
 
 import numpy
+
 from jaeger import FPS, log
 
 from fps_sandbox.osu.check_layout import prepare_layout_data

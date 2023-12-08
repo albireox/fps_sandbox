@@ -18,11 +18,11 @@ import pandas
 import pandas.plotting
 import seaborn
 from astropy.time import Time
-from jaeger.target.tools import positioner_to_wok, wok_to_positioner
 from pydl.pydlutils.sdss import yanny
 
 from coordio import ICRS, Field, FocalPlane, Observed, Site, Wok
 from coordio.defaults import INST_TO_WAVE
+from jaeger.target.tools import positioner_to_wok, wok_to_positioner
 
 
 matplotlib.use("MacOSX")

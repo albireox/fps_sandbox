@@ -16,8 +16,8 @@ import numpy
 import pandas
 import seaborn
 from astropy.io import fits
-from cherno.acquisition import Acquisition
 
+from cherno.acquisition import Acquisition
 from coordio.defaults import PLATE_SCALE
 
 

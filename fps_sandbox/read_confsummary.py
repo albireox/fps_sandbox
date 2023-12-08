@@ -11,7 +11,8 @@ from __future__ import annotations
 import pathlib
 
 import pandas
-from pydl.pydlutils.yanny import yanny
+
+from sdsstools import yanny
 
 
 __all__ = ["read_confsummary"]

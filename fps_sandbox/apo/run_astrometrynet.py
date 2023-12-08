@@ -15,8 +15,9 @@ import sep
 from astropy.io import fits
 from astropy.table import Table
 from astropy.wcs import WCS
-from cherno.astrometry import AstrometryNet
 from matplotlib import pyplot as plt
+
+from cherno.astrometry import AstrometryNet
 
 
 plt.ioff()

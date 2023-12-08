@@ -12,9 +12,10 @@ import pathlib
 
 import numpy
 import pandas
-from pydl.pydlutils.yanny import yanny
 from rich.progress import track
 from yaml import warnings
+
+from sdsstools import yanny
 
 
 SDSSCORE_DIR = pathlib.Path(os.environ["SDSSCORE_DIR"])

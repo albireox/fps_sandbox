@@ -14,8 +14,9 @@ import pathlib
 from functools import partial
 
 import pandas
-from pydl.pydlutils.yanny import yanny
 from rich.progress import track
+
+from sdsstools import yanny
 
 
 OBSERVATORY = "apo"

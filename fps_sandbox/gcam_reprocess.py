@@ -17,10 +17,10 @@ import matplotlib.pyplot as plt
 import numpy
 import pandas
 from astropy.io import fits
-from cherno import config, set_observatory
-from cherno.acquisition import Acquisition
 from tqdm import tqdm
 
+from cherno import config, set_observatory
+from cherno.acquisition import Acquisition
 from coordio import calibration
 from coordio.guide import umeyama
 

@@ -8,10 +8,9 @@
 
 import asyncio
 
+from coordio import calibration
 from jaeger.commands.goto import goto
 from jaeger.fps import FPS
-
-from coordio import calibration
 
 
 SEXTANT = 1

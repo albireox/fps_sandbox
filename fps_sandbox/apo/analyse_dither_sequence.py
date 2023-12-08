@@ -17,8 +17,9 @@ import seaborn
 from astropy.io import fits
 from astropy.table import Table
 from matplotlib import pyplot as plt
-from pydl.pydlutils.yanny import yanny
 from tqdm import tqdm
+
+from sdsstools import yanny
 
 
 # Sequence 1 59571

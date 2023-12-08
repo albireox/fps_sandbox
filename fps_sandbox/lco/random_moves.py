@@ -11,6 +11,7 @@ from __future__ import annotations
 import asyncio
 
 import numpy
+
 from jaeger import FPS, config
 from jaeger.exceptions import JaegerError, TrajectoryError
 from jaeger.target.tools import create_random_configuration

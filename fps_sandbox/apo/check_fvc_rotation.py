@@ -13,11 +13,11 @@ import sys
 
 import numpy
 from astropy.io import fits
+
+from coordio import calibration
 from jaeger import log, logging
 from jaeger.fvc import FVC
 from jaeger.target.tools import positioner_to_wok
-
-from coordio import calibration
 
 
 log.sh.setLevel(logging.INFO)

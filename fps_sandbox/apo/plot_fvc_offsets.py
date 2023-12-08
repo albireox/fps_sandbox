@@ -13,6 +13,7 @@ import sys
 
 import pandas
 from astropy.table import Table
+
 from jaeger import log, logging
 
 

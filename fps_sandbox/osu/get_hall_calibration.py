@@ -9,6 +9,7 @@
 import asyncio
 
 from astropy.table import Table
+
 from jaeger import FPS
 
 
