@@ -1,35 +1,39 @@
-[tool.poetry]
+[project]
 name = "fps_sandbox"
 version = "0.1.0"
 description = "Sandbox for FPS scripts and tools."
-authors = ["José Sánchez-Gallego <gallegoj@uw.edu>"]
+authors = [ { name = "José Sánchez-Gallego", email = "gallegoj@uw.edu" } ]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<3.13"
-sdsstools = "^1.5.3"
-astropy = "^6.0.0"
-pandas = "^2.0.0"
-numpy = ">=1.21.1"
-sdss-coordio = "^1.6.1"
-tables = ">=3.6.1"
-sep = ">=1.2.0"
-matplotlib = ">=3.5"
-seaborn = ">=0.12.0"
-tqdm = ">=4.62.3"
-rich = ">=11.2.0"
-photutils = "^1.7.0"
-pyarrow = "*"
-fitsio = "^1.2.1"
-polars = ">=1.0.0"
-requests = "^2.32.3"
-jaeger = "^1.7.7"
+requires-python = ">=3.11,<3.13"
 
-[tool.poetry.dev-dependencies]
-ipython = ">=8.0.0"
-invoke = "*"
-ipdb = ">=0.13.3"
-pandas-stubs = ">=1.2.0"
-ruff = ">=0.1.0"
+dependencies = [
+    "sdsstools>=1.5.3",
+    "astropy>=6.0.0",
+    "pandas>=2.0.0",
+    "numpy>=1.21.1",
+    "sdss-coordio>=1.6.1",
+    "tables>=3.6.1",
+    "sep>=1.2.0",
+    "matplotlib>=3.5",
+    "seaborn>=0.12.0",
+    "tqdm>=4.62.3",
+    "rich>=11.2.0",
+    "photutils>=1.7.0",
+    "pyarrow",
+    "fitsio>=1.2.1",
+    "polars>=1.0.0",
+    "requests>=2.32.3",
+    "jaeger>=1.7.7",
+]
+
+[dependency-groups]
+dev = [
+    "ipython>=8.0.0",
+    "invoke",
+    "ipdb>=0.13.3",
+    "pandas-stubs>=1.2.0",
+    "ruff>=0.1.0",
+]
 
 [tool.ruff]
 line-length = 88
