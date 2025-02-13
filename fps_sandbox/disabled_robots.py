@@ -89,16 +89,35 @@ def disabled_robots(
         )
         .filter(pcol.assigned)
         .with_columns(
+            alpha_median=pcol.alpha.median().over(over_c),
+            beta_median=pcol.beta.median().over(over_c),
             none_on_target=(pcol.on_target.not_().all()).over(over_c),
             positioner_std=(hypot).over(over_c),
         )
-        .with_columns(disabled=(pcol.none_on_target | (pcol.positioner_std < 0.5)))
+        .with_columns(disabled=(pcol.none_on_target | (pcol.positioner_std < 5)))
     )
 
     # Create a list of disabled robots per MJD and observatory.
     d3 = d2.filter(pcol.disabled).select("observatory", "MJD", "positionerId").unique()
 
-    d4 = d3.sort("observatory", "MJD", "positionerId")
+    # Include the median alpha and beta values for each disabled robot, each MJD.
+    d4 = d3.join(
+        d2.select(
+            [
+                "MJD",
+                "observatory",
+                "positionerId",
+                "alpha_median",
+                "beta_median",
+            ]
+        ).unique(["MJD", "observatory", "positionerId"]),
+        on=["observatory", "MJD", "positionerId"],
+        how="inner",
+    )
+
+    d4 = d4.sort("observatory", "MJD", "positionerId")
+
+    # Include the median alpha and beta values for each disabled robot, each MJD.
 
     if return_count:
         count = d3.group_by("positionerId").count().sort("positionerId")
