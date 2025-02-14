@@ -15,8 +15,6 @@ import polars
 import seaborn
 from polars import col as pcol
 
-from fps_sandbox.disabled_robots import disabled_robots
-
 
 DATA_PATH = pathlib.Path(__file__).parent / "../data"
 RESULTS_PATH = pathlib.Path(__file__).parent / "../results"
@@ -25,10 +23,11 @@ CONFSUMMARIES = DATA_PATH / "confsummaries.parquet"
 DESIGN_MODES = DATA_PATH / "design_modes.parquet"
 
 
-def plot_unused_stats(
+def unused_stats(
     data: pathlib.Path | str | polars.DataFrame | None = None,
     observatory: str = "APO",
     design_mode: str | None = None,
+    plot: bool = True,
     outpath: pathlib.Path | str | None = None,
 ) -> polars.DataFrame:
     """Plots the number of unused robots per MJD and observatory.
@@ -43,6 +42,8 @@ def plot_unused_stats(
     design_mode
         The design mode to use. If not provided, all design modes are used. If a
         design mode does not have data, no plots are generated.
+    plot
+        Whether to plot the results.
     outpath
         The path where to save the plots.
 
@@ -86,27 +87,15 @@ def plot_unused_stats(
     # 1500 rows (not sure what causes this).
     d1 = d1.filter((pcol.positionerId.len() == 1500).over("configuration_id"))
 
-    # Determine which robots were disabled each MJD.
-    disabled = disabled_robots(d1, return_count=False)
-    disabled = disabled.with_columns(disabled=polars.lit(True, dtype=polars.Boolean))
-
-    # Join with the main dataframe.
-    d2 = d1.join(disabled, on=["MJD", "observatory", "positionerId"], how="left")
-    d2 = d2.with_columns(
-        disabled=pcol.disabled.fill_null(False),
-    ).with_columns(
-        on_target=polars.when(pcol.disabled).then(False).otherwise(pcol.on_target)
-    )
-
     # Join with design modes
     design_modes = polars.read_parquet(DESIGN_MODES)
-    d3 = d2.join(design_modes, on="design_id", how="left")
+    d2 = d1.join(design_modes, on="design_id", how="left")
 
     if design_mode:
-        d3 = d3.filter(pcol.design_mode == design_mode)
+        d2 = d2.filter(pcol.design_mode == design_mode)
 
     # Reject designs and RS runs that are commissioning or not normal science.
-    d3 = d3.filter(
+    d3 = d2.filter(
         pcol.observatory == observatory,
         pcol.program != "commissioning",
         pcol.program != "",
@@ -162,6 +151,9 @@ def plot_unused_stats(
     d5 = d4.filter(pcol.disabled_perc < 90, pcol.failed_perc >= 0)
 
     if d5.height == 0:
+        return d5
+
+    if not plot:
         return d5
 
     # Plot results.
