@@ -13,7 +13,7 @@ dependencies = [
     "numpy>=1.21.1",
     "sdss-coordio>=1.6.1",
     "tables>=3.6.1",
-    "sdss-sep>=1.2.3",
+    "sep>=1.4.1",
     "matplotlib>=3.5",
     "seaborn>=0.12.0",
     "tqdm>=4.62.3",
@@ -24,7 +24,8 @@ dependencies = [
     "polars>=1.0.0",
     "requests>=2.32.3",
     # "jaeger>=1.7.7",
-    "gtools"
+    "gtools",
+    "rheader",
 ]
 
 [dependency-groups]
@@ -38,6 +39,7 @@ dev = [
 
 [tool.uv.sources]
 gtools = { git = "https://github.com/albireox/gtools.git", branch = "main" }
+rheader = { git = "https://github.com/albireox/rheader.git" }
 
 [tool.ruff]
 line-length = 88
