@@ -7,16 +7,14 @@
 # @License: BSD 3-clause (http://www.opensource.org/licenses/BSD-3-Clause)
 
 from __future__ import annotations
-from PIL.IptcImagePlugin import _i
-from polars.functions.as_datatype import time_
-from tables.tests.create_backcompat_indexes import row
 
 import pathlib
 
 import polars
+from astropy.time import Time
 from rheader import read_header
 from rich.progress import track
-from astropy.time import Time
+
 
 def collect_header_data(root: pathlib.Path | str):
     """Collects header data from all BOSS FITS files.
@@ -140,7 +138,9 @@ def add_hartmann_data(df: polars.DataFrame) -> polars.DataFrame:
             _hartmann_time = time
             _first_after_hartmann = True
 
-        time_after_hartmann.append(time - _hartmann_time if _hartmann_time > 0 else -1.)
+        time_after_hartmann.append(
+            time - _hartmann_time if _hartmann_time > 0 else -1.0
+        )
 
         if not _is_hartmann and _first_after_hartmann:
             first_after_hartmann.append(True)
